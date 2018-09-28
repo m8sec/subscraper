@@ -66,7 +66,7 @@ def search_thread(source, target):
         try:
             sub = link.split("/")[2].strip().lower()
             if target in sub and sub not in FOUND and sub.count('.') > 1:
-                subdomain_output(sub, "Search-" + source, dns_lookup(sub, 'A'))
+                subdomain_output(sub, "Search-" + source)
         except:
             pass
 
@@ -145,7 +145,7 @@ def virustotal_thread(target):
                 sub = extract_sub(target, data[count])
                 # Verify subdomain before display
                 if sub not in FOUND and sub.count('.') > 1:
-                    subdomain_output(sub, "Virus-Total", dns_lookup(sub, 'A'))
+                    subdomain_output(sub, "Virus-Total")
     except:
         pass
 
@@ -163,12 +163,12 @@ def extract_sub(target, html):
 #
 #############################################
 def brute_thread(s, target):
-    # Subdomain Enumeration Main Logic
+    # Subdomain Enumeration through DNS brute force
     try:
         sub = s + '.' + target
         dns_query = dns_lookup(sub, 'A')
         if dns_query and sub not in FOUND:
-            subdomain_output(sub, 'DNS-Brute', dns_query)
+            subdomain_output(sub, 'DNS-Brute')
     except KeyboardInterrupt:
         print("\n[!] Key Event Detected...\n\n")
         exit(0)
@@ -226,13 +226,12 @@ def sub_respcode(sub):
         results.append("Err")
     return results
 
-def subdomain_output(sub, source, dns_query):
+def subdomain_output(sub, source):
     # Main Function that prints all subdomain data to terminal during enumeration process
     http = sub_respcode(sub)
-    FOUND[sub] = dns_query, http
-    stdout.write("\033[1;34m{:<13}\033[1;m\t{:<25}\t({:<3}/{:<3})\t{}\n".format('[{}]'.format(source), sub, http[0], http[1], dns_query))
-
-
+    dns = dns_lookup(sub, 'A')
+    FOUND[sub] = dns, http
+    stdout.write("\033[1;34m{:<13}\033[1;m\t{:<25}\t({:<3}/{:<3})\t{}\n".format('[{}]'.format(source), sub, http[0], http[1], dns))
 
 #############################################
 #
