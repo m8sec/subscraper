@@ -24,10 +24,11 @@ FOUND = {}
 
 #############################################
 #
-# DNS Funciton for A & CNAME Record Lookups
+# HTTP(S) Requests & DNS Queries
 #
 #############################################
 def dns_lookup(target, lookup_type):
+    # User defined DNS record lookup
     results = []
     try:
         res = dns.resolver.Resolver()
@@ -42,11 +43,6 @@ def dns_lookup(target, lookup_type):
         pass
     return results
 
-#############################################
-#
-# HTTP GET & Search Functions
-#
-#############################################
 def get_request(link, timeout):
     # HTTP(S) GET request w/ user defined timeout
     head = {
@@ -59,8 +55,23 @@ def get_request(link, timeout):
         'Upgrade-Insecure-Requests': '1'}
     return get(link, headers=head, verify=False, timeout=timeout)
 
+#############################################
+#
+# Scrape Search Engine Results
+#
+#############################################
+def search_thread(source, target):
+    # Scrape search engine results for subdomains
+    for link in SiteSearch().search(source, target, 20):
+        try:
+            sub = link.split("/")[2].strip().lower()
+            if target in sub and sub not in FOUND and sub.count('.') > 1:
+                subdomain_output(sub, "Search-" + source, dns_lookup(sub, 'A'))
+        except:
+            pass
+
 class SiteSearch():
-    # Use search engine to search for links associated with a single site
+    # Use search engine(s) to search for links associated with a single site
     URL = {'google': 'https://www.google.com/search?q=site:{}&num=100&start={}',
            'bing': 'http://www.bing.com/search?q=site:{}&first={}'}
 
@@ -116,8 +127,30 @@ def get_links(raw_response):
             pass
     return links
 
+#############################################
+#
+# VirusTotal Lookup
+#
+#############################################
+def virustotal_thread(target):
+    # Get subdomains using VirusTotal (No API)
+    count = 0
+    try:
+        resp = get_request("https://www.virustotal.com/en/domain/{}/information/".format(target), 5)
+        data = resp.content.decode('utf-8').splitlines()
+        for line in data:
+            count += 1
+            # Div is before identified subdomain in HTML
+            if '<div class="enum ">' in line:
+                sub = extract_sub(target, data[count])
+                # Verify subdomain before display
+                if sub not in FOUND and sub.count('.') > 1:
+                    subdomain_output(sub, "Virus-Total", dns_lookup(sub, 'A'))
+    except:
+        pass
+
 def extract_sub(target, html):
-    # Extract subdomain from virus total lookup HTML
+    # Extract subdomain from VirusTotal lookup HTML
     try:
         if target in html:
             return html.split("/en/domain/")[1].split("/information")[0]
@@ -126,10 +159,29 @@ def extract_sub(target, html):
 
 #############################################
 #
+# DNS Brute Force
+#
+#############################################
+def brute_thread(s, target):
+    # Subdomain Enumeration Main Logic
+    try:
+        sub = s + '.' + target
+        dns_query = dns_lookup(sub, 'A')
+        if dns_query and sub not in FOUND:
+            subdomain_output(sub, 'DNS-Brute', dns_query)
+    except KeyboardInterrupt:
+        print("\n[!] Key Event Detected...\n\n")
+        exit(0)
+    except Exception as e:
+        stdout.write("\033[1;30m{:<13}\t{:<25}\033[1;m\n".format('[Error-03]', str(e)))
+
+#############################################
+#
 # Logging / Support Functions
 #
 #############################################
 def write_file(file, data):
+    # Write data to file after enumeration
     if path.exists(file):
         option = 'a'
     else:
@@ -160,38 +212,6 @@ def outfile_prep(outfile, args):
         setattr(args, 'outfile', False)
     return args
 
-#############################################
-#
-# Subdomain Enumeration Logic
-#
-#############################################
-def subdomain_scraper(source, target):
-    # Search Web for subdomains
-    for link in SiteSearch().search(source, target, 20):
-        try:
-            sub = link.split("/")[2].strip().lower()
-            if target in sub and sub not in FOUND and sub.count('.') > 1:
-                subdomain_output(sub, "Search-" + source, dns_lookup(sub, 'A'))
-        except:
-            pass
-
-def virustotal_lookup(target):
-    # Get subs using virus total, no api needed
-    count = 0
-    try:
-        resp = get_request("https://www.virustotal.com/en/domain/{}/information/".format(target), 5)
-        data = resp.content.decode('utf-8').splitlines()
-        for line in data:
-            count += 1
-            # Div is before identified subdomain in HTML
-            if '<div class="enum ">' in line:
-                sub = extract_sub(target, data[count])
-                # Verify subdomain before printing
-                if sub not in FOUND and sub.count('.') > 1:
-                    subdomain_output(sub, "Virus-Total", dns_lookup(sub, 'A'))
-    except:
-        pass
-
 def sub_respcode(sub):
     # Return list of HTTP/HTTPS response code for subdomain
     results = []
@@ -207,23 +227,12 @@ def sub_respcode(sub):
     return results
 
 def subdomain_output(sub, source, dns_query):
-    # Gather data for output and print
+    # Main Function that prints all subdomain data to terminal during enumeration process
     http = sub_respcode(sub)
     FOUND[sub] = dns_query, http
     stdout.write("\033[1;34m{:<13}\033[1;m\t{:<25}\t({:<3}/{:<3})\t{}\n".format('[{}]'.format(source), sub, http[0], http[1], dns_query))
 
-def subdomain_brute(s, target):
-    # Subdomain Enumeration Main Logic
-    try:
-        sub = s + '.' + target
-        dns_query = dns_lookup(sub, 'A')
-        if dns_query and sub not in FOUND:
-            subdomain_output(sub, 'DNS-Brute', dns_query)
-    except KeyboardInterrupt:
-        print("\n[!] Key Event Detected...\n\n")
-        exit(0)
-    except Exception as e:
-        stdout.write("\033[1;30m{:<13}\t{:<25}\033[1;m\n".format('[Error-03]', str(e)))
+
 
 #############################################
 #
@@ -232,15 +241,15 @@ def subdomain_brute(s, target):
 #############################################
 def main(args):
     try:
-        #Start Enumeration threads
         stdout.write("\n\033[1;30m{:<13}\t{:<25}\t({:<9})\t{}\033[1;m\n".format('[DNS-Source]', 'Subdomain', 'http/https', 'DNS Resolution'))
+        # Launch Subdomain Enumeration Threads
         if args.brute:
-            Thread(target=virustotal_lookup, args=(args.target,), daemon=True).start()
-            Thread(target=subdomain_scraper, args=('bing', args.target,), daemon=True).start()
-            Thread(target=subdomain_scraper, args=('google', args.target,), daemon=True).start()
+            Thread(target=virustotal_thread, args=(args.target,), daemon=True).start()
+            Thread(target=search_thread, args=('bing', args.target,), daemon=True).start()
+            Thread(target=search_thread, args=('google', args.target,), daemon=True).start()
         if args.scrape:
             for s in args.sublist:
-                Thread(target=subdomain_brute, args=(s, args.target,), daemon=True).start()
+                Thread(target=brute_thread, args=(s, args.target,), daemon=True).start()
                 # Sleep while max threads reached
                 while activeCount() > args.max_threads:
                     sleep(0.001)
@@ -258,7 +267,7 @@ def main(args):
             print(k)    # Print subdomain
             # If output file present, print to file
             if args.outfile:
-                # Determine output file and print data (CSV more verbose)
+                # Determine output file and print data (CSV = more verbose)
                 if args.outfile.endswith('.txt'):
                     write_file(args.outfile,k)
                 elif args.outfile.endswith('.csv'):
@@ -271,11 +280,10 @@ def main(args):
         # Subdomain Takeover CNAME Check - Not on report
         stdout.write("\n\033[1;30m[*] CNAME Record Lookup\033[1;m\n")
         stdout.write("\033[1;30m{:<25}\t({:<9})\t{}\033[1;m\n".format('Subdomain', 'http/https', 'CNAME Record'))
-        # List items previously found
         for k, v in FOUND.items():
             # For each subdomain found perform cname lookup
             for x in dns_lookup(k, 'CNAME'):
-                # Check for target domain
+                # Check target domain not in output (aka redirects)
                 if args.target not in x:
                     stdout.write("{:<25}\t({:<3}/{:<3})\t{}\n".format(k, v[1][0], v[1][1], x))
     except KeyboardInterrupt:
