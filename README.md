@@ -4,6 +4,11 @@ SubScraper uses DNS brute force, Google & Bing scraping, and Virus Total to enum
 
 ![](https://user-images.githubusercontent.com/13889819/46205430-90ac0e00-c2ee-11e8-801c-626b066448ca.png)
 
+### Install
+```bash
+git clone https://github.com/m8r0wn/subscraper
+pip3 install -r requirements.txt
+```
 ### Usage
 ```bash
 python3 subscraper.py example.com
