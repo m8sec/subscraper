@@ -6,7 +6,6 @@ SubScraper uses DNS brute force, Google & Bing scraping, and Virus Total to enum
 
 ### Install
 ```bash
-git clone https://github.com/m8r0wn/subscraper
 pip3 install -r requirements.txt
 ```
 ### Usage
