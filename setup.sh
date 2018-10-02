@@ -15,6 +15,4 @@ fi
 
 echo -e "\n[*] Starting SubScraper setup script"
 apt-get install python3 -y
-pip3 install bs4
-pip3 install dnspython
-pip3 install requests
+pip3 install -r requirements.txt
