@@ -240,7 +240,7 @@ def subdomain_output(sub, source):
 #############################################
 def main(args):
     try:
-        stdout.write("\n\033[1;30m{:<13}\t{:<25}\t({:<9})\t{}\033[1;m\n".format('[DNS-Source]', 'Subdomain', 'http/https', 'DNS Resolution'))
+        stdout.write("\n\033[1;30m{:<13}\t{:<25}\t({:<9})\t{}\033[1;m\n".format('[Source]', 'Subdomain', 'http/https', 'DNS Resolution'))
         # Launch Subdomain Enumeration Threads
         if args.brute:
             Thread(target=virustotal_thread, args=(args.target,), daemon=True).start()
@@ -293,7 +293,7 @@ def main(args):
         stdout.write("\033[1;30m{:<13}\t{:<25}\033[1;m\n".format('[Error-01]', str(e)))
 
 if __name__ == '__main__':
-    version = "1.1.0"
+    version = "1.1.1"
     print("""\033[1;30m
       ____        _    ____                                 
      / ___| _   _| |__/ ___|  ___ _ __ __ _ _ __   ___ _ __ 
