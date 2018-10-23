@@ -22,5 +22,6 @@ python3 subscraper.py -t 5 -o csv example.com
   -b              Only use DNS brute forcing to find subdomains
   -o OUTFILE      Define output file type: csv/txt (Default: None)
   -t MAX_THREADS  Max threads (Default: 10)
+  -T TIMEOUT      Timeout [seconds] for search threads (Default: 25)
   -w SUBLIST      Custom subdomain wordlist
 ```
