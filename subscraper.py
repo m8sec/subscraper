@@ -17,56 +17,70 @@ from threading import Thread, activeCount
 from urllib3 import disable_warnings, exceptions
 disable_warnings(exceptions.InsecureRequestWarning)
 
-# List of user-agents to evade detection during HTTP lookups
+# List of user-agents to evade detection during HTTP requests
 USER_AGENTS = [line.strip() for line in open('user_agents.txt')]
 # Global Dict for Subdomain Collection
 FOUND = {}
 
-#############################################
-#
-# HTTP(S) Requests & DNS Queries
-#
-#############################################
-def dns_lookup(target, lookup_type):
-    # User defined DNS record lookup
-    results = []
-    try:
-        res = dns.resolver.Resolver()
-        res.timeout = 2
-        res.lifetime = 2
-        dns_query = res.query(target, lookup_type)
-        dns_query.nameservers = ['8.8.8.8', '8.8.4.4']
-        # Display Data
-        for name in dns_query:
-            results.append(str(name))
-    except:
-        pass
-    return results
+################################################
+# Method 4: Censys.io Cert Lookup (API Required)
+################################################
+CENSYSIO_API = ''
+CENSYSIO_SECRET = ''
 
-def get_request(link, timeout):
-    # HTTP(S) GET request w/ user defined timeout
-    head = {
-        'User-Agent': '{}'.format(choice(USER_AGENTS)),
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-        'Accept-Language': 'en-US,en;q=0.5',
-        'Accept-Encoding': 'gzip, deflate',
-        'DNT': '1',
-        'Connection': 'keep-alive',
-        'Upgrade-Insecure-Requests': '1'}
-    return get(link, headers=head, verify=False, timeout=timeout)
+class censys_io():
+    def __init__(self):
+        self.thread_count = 0
+        self.running = True
 
-#############################################
-#
-# Scrape Search Engine Results
-#
-#############################################
-def search_thread(source, target):
+    def timer(self, time):
+        # Exit on timeout
+        sleep(time)
+        self.running = False
+
+    def search(self, target, timeout):
+        try:
+            # Don't import until required
+            import censys.certificates
+            # Start timeout thread
+            Thread(target=self.timer, args=(timeout,), daemon=True).start()
+            # Start Search
+            certs = censys.certificates.CensysCertificates(api_id=CENSYSIO_API, api_secret=CENSYSIO_SECRET)
+            resp = certs.search("parsed.names: {}".format(target), fields=['parsed.names'])
+            for line in resp:
+                # Return on timeout
+                if not self.running: return
+                # Threading to parse results
+                self.thread_count += 1
+                Thread(target=self.parser, args=(target, line,)).start()
+                # Sleep while max threads reached
+                while self.thread_count >= 2:
+                    sleep(0.001)
+            while self.thread_count > 0:
+                sleep(0.001)
+        except:
+            stdout.write("\033[1;33m[!]\033[1;m \033[1;30mCensys.IO Error, verify API Key/Secret\033[1;m\n")
+
+    def parser(self, target, line):
+        #for line in resp:
+        try:
+            for sub in line['parsed.names']:
+                if target in sub and "*" not in sub:
+                    subdomain_output(sub, 'Censys.io')
+        except:
+            pass
+        self.thread_count -= 1
+
+################################################
+# Method 3: Scrape Search Engine Results
+################################################
+def search_thread(source, target, timeout):
     # Scrape search engine results for subdomains
-    for link in SiteSearch().search(source, target, 20):
+    for link in SiteSearch().search(source, target, timeout):
         try:
             sub = link.split("/")[2].strip().lower()
-            if target in sub and sub not in FOUND and sub.count('.') > 1:
-                subdomain_output(sub, "Search-" + source)
+            if ".{}".format(target) in sub:
+                subdomain_output(sub, "Search-" + source.title())
         except:
             pass
 
@@ -127,11 +141,9 @@ def get_links(raw_response):
             pass
     return links
 
-#############################################
-#
-# VirusTotal Lookup
-#
-#############################################
+################################################
+# Method 2: VirusTotal Lookup
+################################################
 def virustotal_thread(target):
     # Get subdomains using VirusTotal (No API)
     count = 0
@@ -143,9 +155,7 @@ def virustotal_thread(target):
             # Div is before identified subdomain in HTML
             if '<div class="enum ">' in line:
                 sub = extract_sub(target, data[count])
-                # Verify subdomain before display
-                if sub not in FOUND and sub.count('.') > 1:
-                    subdomain_output(sub, "Virus-Total")
+                subdomain_output(sub, "Virus-Total")
     except:
         pass
 
@@ -157,11 +167,9 @@ def extract_sub(target, html):
     except:
         return False
 
-#############################################
-#
-# DNS Brute Force
-#
-#############################################
+################################################
+# Method 1: DNS Brute Force
+################################################
 def brute_thread(s, target):
     # Subdomain Enumeration through DNS brute force
     try:
@@ -175,11 +183,82 @@ def brute_thread(s, target):
     except Exception as e:
         stdout.write("\033[1;30m{:<13}\t{:<25}\033[1;m\n".format('[Error-03]', str(e)))
 
-#############################################
-#
+################################################
+# HTTP(S) Requests & DNS Queries
+################################################
+def dns_lookup(target, lookup_type):
+    # User defined DNS record lookup
+    results = []
+    try:
+        res = dns.resolver.Resolver()
+        res.timeout = 2
+        res.lifetime = 2
+        dns_query = res.query(target, lookup_type)
+        dns_query.nameservers = ['8.8.8.8', '8.8.4.4']
+        # Display Data
+        for name in dns_query:
+            results.append(str(name))
+    except:
+        pass
+    return results
+
+def get_request(link, timeout):
+    # HTTP(S) GET request w/ user defined timeout
+    head = {
+        'User-Agent': '{}'.format(choice(USER_AGENTS)),
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.5',
+        'Accept-Encoding': 'gzip, deflate',
+        'DNT': '1',
+        'Connection': 'keep-alive',
+        'Upgrade-Insecure-Requests': '1'}
+    return get(link, headers=head, verify=False, timeout=timeout)
+
+################################################
+# Terminal Output
+################################################
+def subdomain_output(sub, source):
+    # Main Function that prints all subdomain data to terminal during enumeration process
+    if sub not in FOUND and sub.count('.') > 1:
+        http = sub_respcode(sub)
+        dns = dns_lookup(sub, 'A')
+        FOUND[sub] = dns, http
+        stdout.write("\033[1;34m{:<13}\033[1;m\t{:<25}\t({:<3}/{:<3})\t{}\n".format('[{}]'.format(source), sub, http[0], http[1], dns))
+
+def display_results():
+    dedup = []
+    # Cycle through final results & print/report
+    stdout.write("\n\033[1;30m[*] Results\033[1;m\n")
+    for k, v in FOUND.items():
+        # Check for duplicates
+        if k not in dedup:
+            dedup.append(k)
+            print(k)
+        # If output file present, print to file
+        if args.outfile:
+            # Determine output file and print data (CSV = more verbose)
+            if args.outfile.endswith('.txt'):
+                write_file(args.outfile, k)
+            elif args.outfile.endswith('.csv'):
+                if v[0]:
+                    for x in v[0]:
+                        write_file(args.outfile, "\"{}\",\"{}\",\"{}\",\"{}\",".format(k, x, v[1][0], v[1][1]))
+                else:
+                    write_file(args.outfile, "\"{}\",\"{}\",\"Err\",\"Err\",".format(k, x))
+
+def takeover_check():
+    stdout.write("\n\033[1;30m[*] Subdomain Takeover Check\033[1;m\n")
+    stdout.write("\033[1;30m{:<25}\t({:<9})\t{}\033[1;m\n".format('Subdomain', 'http/https', 'CNAME Record'))
+    for k, v in FOUND.items():
+        # For each subdomain found perform cname lookup
+        for x in dns_lookup(k, 'CNAME'):
+            # Check target domain not in output (aka redirects)
+            if args.target not in x:
+                stdout.write("{:<25}\t({:<3}/{:<3})\t{}\n".format(k, v[1][0], v[1][1], x))
+
+################################################
 # Logging / Support Functions
-#
-#############################################
+################################################
 def write_file(file, data):
     # Write data to file after enumeration
     if path.exists(file):
@@ -226,26 +305,19 @@ def sub_respcode(sub):
         results.append("Err")
     return results
 
-def subdomain_output(sub, source):
-    # Main Function that prints all subdomain data to terminal during enumeration process
-    http = sub_respcode(sub)
-    dns = dns_lookup(sub, 'A')
-    FOUND[sub] = dns, http
-    stdout.write("\033[1;34m{:<13}\033[1;m\t{:<25}\t({:<3}/{:<3})\t{}\n".format('[{}]'.format(source), sub, http[0], http[1], dns))
-
-#############################################
-#
+################################################
 # Main
-#
-#############################################
+################################################
 def main(args):
     try:
         stdout.write("\n\033[1;30m{:<13}\t{:<25}\t({:<9})\t{}\033[1;m\n".format('[Source]', 'Subdomain', 'http/https', 'DNS Resolution'))
         # Launch Subdomain Enumeration Threads
         if args.brute:
+            if CENSYSIO_API:
+                Thread(target=censys_io().search, args=(args.target, args.timeout,), daemon=True).start()
             Thread(target=virustotal_thread, args=(args.target,), daemon=True).start()
-            Thread(target=search_thread, args=('bing', args.target,), daemon=True).start()
-            Thread(target=search_thread, args=('google', args.target,), daemon=True).start()
+            Thread(target=search_thread, args=('bing', args.target, args.timeout,), daemon=True).start()
+            Thread(target=search_thread, args=('google', args.target, args.timeout,), daemon=True).start()
         if args.scrape:
             for s in args.sublist:
                 Thread(target=brute_thread, args=(s, args.target,), daemon=True).start()
@@ -256,35 +328,10 @@ def main(args):
         while activeCount() > 1:
             sleep(0.001)
 
-        # Return on no results
-        if not FOUND:
+        if not FOUND:       # Return on no results
             return
-
-        # Cycle through results, print and report
-        stdout.write("\n\033[1;30m[*] Results\033[1;m\n")
-        for k,v in FOUND.items():
-            print(k)    # Print subdomain
-            # If output file present, print to file
-            if args.outfile:
-                # Determine output file and print data (CSV = more verbose)
-                if args.outfile.endswith('.txt'):
-                    write_file(args.outfile,k)
-                elif args.outfile.endswith('.csv'):
-                    if v[0]:
-                        for x in v[0]:
-                            write_file(args.outfile, "\"{}\",\"{}\",\"{}\",\"{}\",".format(k,x, v[1][0],v[1][1]))
-                    else:
-                        write_file(args.outfile, "\"{}\",\"{}\",\"Err\",\"Err\",".format(k, x))
-
-        # Subdomain Takeover CNAME Check - Not on report
-        stdout.write("\n\033[1;30m[*] CNAME Record Lookup\033[1;m\n")
-        stdout.write("\033[1;30m{:<25}\t({:<9})\t{}\033[1;m\n".format('Subdomain', 'http/https', 'CNAME Record'))
-        for k, v in FOUND.items():
-            # For each subdomain found perform cname lookup
-            for x in dns_lookup(k, 'CNAME'):
-                # Check target domain not in output (aka redirects)
-                if args.target not in x:
-                    stdout.write("{:<25}\t({:<3}/{:<3})\t{}\n".format(k, v[1][0], v[1][1], x))
+        display_results()   # Print/Log Results
+        takeover_check()    # Subdomain Takeover Check
     except KeyboardInterrupt:
         print("\n[!] Key Event Detected...\n\n")
         exit(0)
@@ -293,20 +340,20 @@ def main(args):
         stdout.write("\033[1;30m{:<13}\t{:<25}\033[1;m\n".format('[Error-01]', str(e)))
 
 if __name__ == '__main__':
-    version = "1.1.1"
+    VERSION = "1.2.0"
     print("""\033[1;30m
       ____        _    ____                                 
      / ___| _   _| |__/ ___|  ___ _ __ __ _ _ __   ___ _ __ 
      \___ \| | | | '_ \___ \ / __| '__/ _` | '_ \ / _ \ '__|
       ___) | |_| | |_) |__) | (__| | | (_| | |_) |  __/ |   
      |____/ \__,_|_.__/____/ \___|_|  \__,_| .__/ \___|_|   
-                                           |_|            v{} \033[1;m""".format(version))
+                                           |_|            v{} \033[1;m""".format(VERSION))
     args = argparse.ArgumentParser(description="""
 ---------------------------------------------------------------
-Script to perform Subdomain enumeration through DNS brute force, google and bing 
-searches, and domain lookups on VirusTotal.com. SubScraper will provide DNS 'A'
-record resolution and http/https response codes to verify subdomain are active. 
-Lastly, a CNAME lookup will be performed to check for subdomain takeover 
+Script to perform Subdomain enumeration through various techniques. In addition,
+SubScraper will provide DNS 'A' record resolution and http/https response codes
+during the enumeration process to verify subdomain are active. Lastly, CNAME lookups
+are performed to check for subdomain takeover opportunities.
 opportunities.
 
 usage:
@@ -316,6 +363,7 @@ usage:
     args.add_argument('-b', dest="brute", action='store_false', help="Only use DNS brute forcing to find subdomains")
     args.add_argument('-o', dest='outfile', type=str, default=False, help='Define output file type: csv/txt (Default: None)')
     args.add_argument('-t', dest='max_threads', type=int, default=10, help='Max threads (Default: 10)')
+    args.add_argument('-T', dest='timeout', type=int, default=25, help='Timeout [seconds] for search threads (Default: 25)')
     args.add_argument('-w', dest="sublist", default='./subdomains.txt',type=lambda x: file_exists(args, x), help='Custom subdomain wordlist')
     args.add_argument(dest='target', nargs='+', help='Target domain')
     args = args.parse_args()
