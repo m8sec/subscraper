@@ -8,6 +8,8 @@ Starting in SubScraper v1.2.0, users have the option of adding an API Key for Ce
 
 ### Install
 ```bash
+git clone https://github.com/m8r0wn/subscraper
+cd subscraper
 pip3 install -r requirements.txt
 ```
 ### Usage
