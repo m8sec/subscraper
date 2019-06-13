@@ -1,0 +1,18 @@
+# Packaging
+impacket/*
+develop-eggs/
+__pycache__/
+*.egg-info/
+build/
+dist/
+*.egg
+
+# Byte-compiled
+__pycache__/
+*.py[cod]
+
+# macOS
+.DS_Store
+
+# PyCharm
+.idea
