@@ -321,8 +321,8 @@ def start(args):
 
         # Launch Subdomain Enumeration Threads
         if args.brute:
-            if args.censysio_api and args.censysio_secret:
-                Thread(target=CensysIO(args.censysio_api, args.censysio_secret).search, args=(args.target, args.timeout,), daemon=True).start()
+            if args.censys_api and args.censys_secret:
+                Thread(target=CensysIO(args.censys_api, args.censys_secret).search, args=(args.target, args.timeout,), daemon=True).start()
             Thread(target=dns_dumpster, args=(args.target, args.timeout,), daemon=True).start()
             #Thread(target=virustotal_thread, args=(args.target,), daemon=True).start()
             Thread(target=search_thread, args=('bing', args.target, args.timeout,), daemon=True).start()
@@ -356,7 +356,7 @@ def start(args):
         stdout.write("\033[1;30m{:<13}\t{:<25}\033[1;m\n".format('[Error-01]', str(e)))
 
 def main():
-    VERSION = "2.0.0"
+    VERSION = "2.0.1"
     print("""\033[1;30m
       ____        _    ____                                 
      / ___| _   _| |__/ ___|  ___ _ __ __ _ _ __   ___ _ __ 
@@ -380,8 +380,8 @@ usage:
     args.add_argument('-t', dest='max_threads', type=int, default=10, help='Max threads (Default: 10)')
     args.add_argument('-T', dest='timeout', type=int, default=25, help='Timeout [seconds] for search threads (Default: 25)')
     args.add_argument('-w', dest="sublist", default=path.join(path.dirname(path.realpath(__file__)), 'resources/subdomains.txt'),type=lambda x: file_exists(args, x), help='Custom subdomain wordlist')
-    args.add_argument('--censysio-api', dest='censysio_api', type=str, default='', help='Add CensysIO API Key')
-    args.add_argument('--censysio-secret', dest='censysio_secret', type=str, default='', help='Add CensysIO Secret')
+    args.add_argument('--censys-api', dest='censys_api', type=str, default='', help='Add Censys.io API Key')
+    args.add_argument('--censys-secret', dest='censys_secret', type=str, default='', help='Add Censys.io Secret')
     args.add_argument(dest='target', nargs='+', help='Target domain')
 
     args = args.parse_args()

@@ -27,6 +27,6 @@ subscraper -csv -T 35 example.com
   -t MAX_THREADS        Max threads (Default: 10)
   -T TIMEOUT            Timeout [seconds] for search threads (Default: 25)
   -w SUBLIST            Custom subdomain wordlist
-  --censysio-api        Add CensysIO API Key
-  --censysio-secret     Add CensysIO Secret
+  --censys-api        Add CensysIO API Key
+  --censys-secret     Add CensysIO Secret
 ```
