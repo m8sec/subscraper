@@ -17,7 +17,7 @@ setup(
     package_data={
       'subscraper': ['resources/*']
     },
-    isntall_requires=[
+    install_requires=[
         'bs4',
         'dnspython',
         'requests',
