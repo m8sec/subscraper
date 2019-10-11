@@ -11,15 +11,27 @@ from subscraper.modules import MODULES, get_module_class
 from subscraper.sub_handler import SubHandler, SubReporter
 from subscraper.helpers import dns_lookup, respcode
 
-def takeover_check(sublist, target):
-    stdout.write("\n\033[1;30m[*] Subdomain Takeover Check\033[1;m\n")
-    stdout.write("\033[1;30m{:<45}\t({:<9})\t{}\033[1;m\n".format('Subdomain', 'http/https', 'CNAME Record'))
-    for sub in sublist:
-        for cname in dns_lookup(sub, 'CNAME'):
+def takeover_check(sub, target):
+    for cname in dns_lookup(sub, 'CNAME'):
             if target not in cname:
                 http = respcode(sub, proto='http')
                 https = respcode(sub, proto='https')
                 stdout.write("{:<45}\t({:<3}/{:<3})\t{}\n".format(sub, http, https, cname))
+
+def takeover(args, sublist, target):
+    try:
+        stdout.write("\n\033[1;30m[*] Subdomain Takeover Check\033[1;m\n")
+        stdout.write("\033[1;30m{:<45}\t({:<9})\t{}\033[1;m\n".format('Subdomain', 'http/https', 'CNAME Record'))
+        for sub in sublist:
+            Thread(target=takeover_check, args=(sub, target,), daemon=True).start()
+            while activeCount() > 15:
+                sleep(0.001)
+        while activeCount() > 1:
+            sleep(0.005)
+
+    except KeyboardInterrupt:
+        stdout.write("\n[!] Key Event Detected...\n\n")
+        return
 
 def subenum(args, target):
     try:
@@ -49,12 +61,17 @@ def subenum(args, target):
             sleep(0.005)
         reporter.stop()
 
-        takeover_check(reporter.complete, target)
+        takeover(args, reporter.complete, target)
         return len(reporter.complete)
 
     except KeyboardInterrupt:
-        print("\n[!] Key Event Detected...\n\n")
-        exit(0)
+        try:
+            reporter.close()
+        except:
+            pass
+
+        stdout.write("\n[!] Key Event Detected...\n\n")
+        return len(reporter.complete)
 
     except Exception as e:
         stdout.write("\033[1;30m{:<13}\t{:<25}\033[1;m\n".format('[Error-01]', str(e)))
@@ -100,12 +117,12 @@ usage:
     report.add_argument('-r', '--report', dest='report', type=str, default='', help="Write subdomains to txt file")
     report.add_argument('--report-type', dest='report_type', type=str, choices=['txt', 'csv'], default='txt', help="Output file types: txt, csv")
 
-    takeover = args.add_argument_group("Subdomain TakeOver")
-    takeover.add_argument('--takeover', dest="takeover", default='', type=lambda x: file_exists(args, x), help='Perform takeover check on list of subs')
+    to = args.add_argument_group("Subdomain TakeOver")
+    to.add_argument('--takeover', dest="takeover", default='', type=lambda x: file_exists(args, x), help='Perform takeover check on list of subs')
     args = args.parse_args()
 
     if args.takeover:
-        takeover_check(args.takeover, args.target[0])
+        takeover(args, args.takeover, args.target[0])
     else:
         start_timer = datetime.now()
         count = subenum(args, args.target[0])

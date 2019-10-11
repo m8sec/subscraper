@@ -33,12 +33,20 @@ class SubReporter(threading.Thread):
 
 
     def run(self):
+        if self.report:
+            self.outfile = open(self.report, 'a')
         while self.running:
             if self.subq:
                 self.reporter(self.subq[0])
                 self.subq.pop(0)
             else:
                 sleep(0.001)
+        self.close()
+
+    def close(self):
+        try:
+            self.outfile.close()
+        except:pass
 
 
     def stop(self):
@@ -62,6 +70,4 @@ class SubReporter(threading.Thread):
 
 
     def write_file(self, data):
-        f = open(self.report, 'a')
-        f.write('{}\n'.format(data))
-        f.close()
+        self.outfile.write('{}\n'.format(data))
