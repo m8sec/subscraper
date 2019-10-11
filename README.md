@@ -14,19 +14,41 @@ python3 setup.py install
 ```
 
 ### Usage
+* Subdomain Enumeration
 ```bash
 subscraper example.com
-subscraper -csv -T 35 example.com
+subscraper -r subdomains.txt example.com
+subscraper -r subdomains.csv --report-type csv example.com
+```
+* Subdomain Takeover Check
+```bash
+subscraper --takeover subdomains.txt example.com
 ```
 
-### Options
+### Call for Contributions
+Have a new subdomain enumeration technique you would like to see in SubScraper? Why not add it!
+
+SubScraper's enumeration methods have been modified to allow for a more modular approach. This means new techniques can easily be added to the ```subscraper/modules``` directory and tie directly into SubScraper's verbose output. 
+See ``subscraper/modules/example_module.py`` for more information. 
+
+### All Options
 ```
-  -s                    Only use internet to find subdomains
-  -b                    Only use DNS brute forcing to find subdomains
-  -csv                  Create CSV output file
-  -t MAX_THREADS        Max threads (Default: 10)
-  -T TIMEOUT            Timeout [seconds] for search threads (Default: 25)
-  -w SUBLIST            Custom subdomain wordlist
-  --censys-api          Add CensysIO API Key
-  --censys-secret       Add CensysIO Secret
+SubScraper Options:
+  -T MAX_THREADS                 Max threads
+  -t TIMEOUT                     Timeout [seconds] for search threads (Default: 25)
+  target                         Target domain (Positional)
+
+Subdomain Enumeration Options:
+  -s                             Only use internet to find subdomains
+  -b                             Only use DNS brute forcing to find subdomains
+  -w SUBLIST                     Custom subdomain wordlist
+  --censys-api CENSYS_API        Add Censys.io API Key
+  --censys-secret CENSYS_SECRET  Add Censys.io Secret
+
+Subdomain Enumeration: Reporting:
+  -r REPORT, --report REPORT     Write subdomains to txt file
+  --report-type {txt,csv}        Output file types: txt, csv
+
+Subdomain TakeOver:
+  --takeover TAKEOVER           Perform takeover check on list of subs
 ```
