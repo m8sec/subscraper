@@ -7,7 +7,7 @@ from time import sleep
 from datetime import datetime
 from sys import exit, stdout
 from threading import Thread, activeCount
-from subscraper import modules
+from subscraper.modules import MODULES, get_module_class
 from subscraper.sub_handler import SubHandler, SubReporter
 from subscraper.helpers import dns_lookup, respcode
 
@@ -30,8 +30,8 @@ def subenum(args, target):
         reporter.start()
         handler = SubHandler(reporter.subq)
 
-        for module in modules.MODULES:
-            module_class = modules.get_module_class(module)
+        for module in MODULES:
+            module_class = get_module_class(module)
             class_obj    = module_class(args, target, handler)
 
             # Brute force methods
