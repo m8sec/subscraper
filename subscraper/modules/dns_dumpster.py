@@ -9,17 +9,17 @@ class DNSDumpster():
         self.timeout = args.timeout
         self.handler = handler
         self.target  = target
-        self.sublist = args.sublist
 
     def execute(self):
-        link = "https://api.hackertarget.com/hostsearch/?q={}"
+        link = "https://api.hackertarget.com/hostsearch/?q={}".format(self.target)
         try:
-            resp = get_request(link.format(self.target), self.timeout)
-            if resp.text:
+            resp = get_request(link, self.timeout)
+            if resp.text and resp.status_code == 200:
                 for line in resp.text.splitlines():
-                    sub = self.sub_extractor(line)
-                    if sub:
-                        self.handler.sub_handler({'Name': sub, 'Source': 'DNS-Dumpster'})
+                    if line.count('.') > 1:
+                        sub = self.sub_extractor(line)
+                        if sub:
+                            self.handler.sub_handler({'Name': sub, 'Source': 'DNS-Dumpster'})
         except:
             pass
 

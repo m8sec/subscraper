@@ -5,7 +5,11 @@ MODULES = {
         'dns_brute'    : 'DNSBrute',
         'web_scraper'  : 'WebScraper',
         'censys_io'    : 'CensysIO',
-        'dns_dumpster' : 'DNSDumpster'
+        'dns_dumpster' : 'DNSDumpster',
+        'wayback_machine' : 'WaybackMachine',
+        'crt_sh' : 'CrtSh',
+        'dns_bufferover_run' : 'DNSBufferOverRun',
+        'threatcrowd' : 'ThreatCrowd',
     }
 
 def get_module_class(name):

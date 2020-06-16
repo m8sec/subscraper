@@ -1,54 +1,81 @@
 # SubScraper
+![](https://img.shields.io/badge/Python-3.6+-blue.svg)&nbsp;&nbsp;
+![](https://img.shields.io/badge/License-GPL%203.0-green.svg)&nbsp;&nbsp;
+![](https://img.shields.io/badge/Call%20for%20Modules-OPEN-green.svg)
 
-SubScraper uses DNS brute force, Google & Bing scraping, and DNSdumpster to enumerate subdomains of a given host. Written in Python3, SubScraper performs HTTP(S) requests and DNS "A" record lookups during the enumeration process to validate discovered subdomains. This provides further information to help prioritize targets and aid in potential next steps. Post-Enumeration, "CNAME" lookups are displayed to identify subdomain takeover opportunities.
+SubScraper is a subdomain enumeration tool that uses a variety of techniques to find potential subdomains of a given target. This is especially helpful during penetration testing or bug bounty hunting to uncover additional attack surfaces. Depending on the the CMD args used, SubScraper can perform DNS lookups and HTTP/S requests during the enumeration process to help prioritize targets and aid in potential next steps.
 
-Users also have the option of adding their Censys.io API Key & Secret in the command line arguments. This will allow subdomain enumeration using the Censys.io SSL Cert database. Create an account to get a free API key here: https://censys.io/register.
+#### Key Features
+* Modular design makes it easy to add new techniques/sources.
+* Various levels of enumeration for additional data gathering.
+* Allows for multiple target inputs, or read targets from txt file.
+* Multi-threaded for additional speed.
 
 ![](https://user-images.githubusercontent.com/13889819/59461972-a287ff80-8df0-11e9-9971-fb1cdf39471f.png)
 
-### Install
+#### Enumeration Techniques
+* DNS brute-force with built-in or custom wordlist
+* Censys.io *(API Key required [https://censys.io/register](https://censys.io/register))*
+* Archive.org *(Wayback Machine)*
+* Google & Bing web scraping
+* DNS Dumpster
+* DNSBufferOverRun
+* ThreatCrowd
+* CRT.SH
+
+## Install
 ```bash
 git clone https://github.com/m8r0wn/subscraper
 cd subscraper
 python3 setup.py install
 ```
 
-### Usage
-* Subdomain Enumeration
+## Usage
+#### Subdomain Enumeration
+* The most basic usage of SubScraper will use bruteforce and web scraping techniques to find all available subdomains of the given target(s). Once complete, a "subscraper_report.txt" file will be created in the current directory listing all subdomains discovered:
 ```bash
 subscraper example.com
-subscraper -r subdomains.txt example.com
-subscraper -r subdomains.csv --report-type csv example.com
 ```
-* Subdomain Takeover Check
+
+* By Changing the level of enumeration (1-3), users can increase the data displayed for each subdomain:
+    * 1 - Show all enumerated subdomains *(Default & Fastest)*
+    * 2 - Used DNS to determine if subdomain is active and only display live hosts
+    * 3 - Perform live check and get HTTP/S response code for each subdomain
+
 ```bash
-subscraper --takeover subdomains.txt example.com
+subscraper --enum 2 example.com
+subscraper -e 3 example.com
 ```
 
-### Call for Contributions
-Have a new subdomain enumeration technique you would like to see in SubScraper? Why not add it!
 
-SubScraper's enumeration methods have been modified to allow for a more modular approach. This means new techniques can easily be added to the ```subscraper/modules``` directory and tie directly into SubScraper's verbose output. 
-See ``subscraper/modules/example_module.py`` for more information. 
+#### Subdomain Takeover
+Once the output report is complete, users can check for subdomain takeover opportunities using the following command. This will perform CNAME lookups on all potential targets and display the results:
+```bash
+subscraper --takeover subscraper_report.txt
+```
 
-### All Options
+
+## All Options
 ```
 SubScraper Options:
-  -T MAX_THREADS                 Max threads
-  -t TIMEOUT                     Timeout [seconds] for search threads (Default: 25)
-  target                         Target domain (Positional)
+  -T MAX_THREADS       Max threads
+  -t TIMEOUT           Timeout [seconds] for search threads (Default: 25)
+  -o REPORT            Output to specific file
+  target               Target domain (Positional)
 
-Subdomain Enumeration Options:
-  -s                             Only use internet to find subdomains
-  -b                             Only use DNS brute forcing to find subdomains
-  -w SUBLIST                     Custom subdomain wordlist
-  --censys-api CENSYS_API        Add Censys.io API Key
-  --censys-secret CENSYS_SECRET  Add Censys.io Secret
+Enumeration Options:
+  -s                   Only use scraping techniques
+  -b                   Only use DNS brute force
+  -w SUBLIST           Custom subdomain wordlist
+  -e LVL, --enum LVL   Enumeration Level:
+                       1: Subdomain Only (Default)
+                       2: Live subdomains, verified by DNS
+                       3: Live check & get HTTP/S response codes
 
-Subdomain Enumeration: Reporting:
-  -r REPORT, --report REPORT     Write subdomains to txt file
-  --report-type {txt,csv}        Output file types: txt, csv
+Enumeration Advanced:
+  --censys-api API     Censys.io API Key
+  --censys-secret KEY  Censys.io Secret
 
 Subdomain TakeOver:
-  --takeover TAKEOVER           Perform takeover check on list of subs
+  --takeover           Perform takeover check on list of subs
 ```

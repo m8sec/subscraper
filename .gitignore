@@ -16,3 +16,6 @@ __pycache__/
 
 # PyCharm
 .idea
+
+# reports
+subscraper_report.txt

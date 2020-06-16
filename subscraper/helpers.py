@@ -39,7 +39,7 @@ def dns_lookup(target, lookup_type):
         res.timeout = 2
         res.lifetime = 2
         dns_query = res.query(target, lookup_type)
-        dns_query.nameservers = ['8.8.8.8', '8.8.4.4']
+        dns_query.nameservers = ['1.1.1.1', '8.8.8.8']
         for name in dns_query:
             results.append(str(name))
     except:
