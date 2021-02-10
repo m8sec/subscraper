@@ -2,8 +2,8 @@ import re
 import threading
 from sys import stdout
 from time import sleep
+from queue import Queue
 from subscraper.helpers import dns_lookup, get_request, respcode
-
 
 class SubHandler():
     def __init__(self, reporter, sub_enum):
@@ -18,19 +18,18 @@ class SubHandler():
         if re.match(self.sub_regex, sub['Name']):
             if "*." in sub['Name']:
                 sub['Name'] = sub['Name'].split('*.')[1]
-
             if self.sub_enum >= 2 and 'DNS' not in sub:
                 sub['DNS'] = dns_lookup(sub['Name'], 'A')
             if self.sub_enum >= 3:
                 sub['HTTP']  = respcode(sub['Name'], proto='http')
                 sub['HTTPS'] = respcode(sub['Name'], proto='https')
-            self.reporter.subq.append(sub)
+            self.reporter.subq.put(sub)
 
 
 class SubReporter(threading.Thread):
     def __init__(self, args):
         threading.Thread.__init__(self)
-        self.subq     = []
+        self.subq     = Queue()
         self.complete = []
         self.running  = True
         self.report = False
@@ -40,9 +39,8 @@ class SubReporter(threading.Thread):
     def run(self):
         self.outfile = open(self.report, 'w')
         while self.running:
-            if self.subq:
-                self.reporter(self.subq[0])
-                self.subq.pop(0)
+            if not self.subq.empty():
+                self.reporter(self.subq.get())
             else:
                 sleep(0.001)
         self.close()
@@ -50,11 +48,11 @@ class SubReporter(threading.Thread):
     def close(self):
         try:
             self.outfile.close()
-        except:
+        except Exception as e:
             pass
 
     def stop(self):
-        while self.subq:
+        while not self.subq.empty():
             sleep(0.05)
         self.running = False
 

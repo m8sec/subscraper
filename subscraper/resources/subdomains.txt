@@ -36,6 +36,7 @@ workstation
 desktop
 web0
 web1
+sdp
 web2
 web3
 pa.uc

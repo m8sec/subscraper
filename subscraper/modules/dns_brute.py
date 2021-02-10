@@ -22,12 +22,12 @@ class DNSBrute():
 
             while len(active_th) > 15:
                 for th in reversed(active_th):
-                    if not th.isAlive():
+                    if not th.is_alive():
                         active_th.remove(th)
 
         while len(active_th) > 0:
             for th in reversed(active_th):
-                if not th.isAlive():
+                if not th.is_alive():
                     active_th.remove(th)
 
     def resolver(self, sub):

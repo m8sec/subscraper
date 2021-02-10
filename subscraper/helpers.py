@@ -19,7 +19,6 @@ def get_request(link, timeout):
         'Upgrade-Insecure-Requests': '1'}
     return get(link, headers=head, verify=False, timeout=timeout)
 
-
 def get_links(raw_response):
     # HTLM Parser to extract links
     links = []
@@ -30,7 +29,6 @@ def get_links(raw_response):
         except:
             pass
     return links
-
 
 def dns_lookup(target, lookup_type):
     results = []

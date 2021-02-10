@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name='SubScraper',
-    version='2.2.0',
+    version='2.2.1',
     author = 'm8r0wn',
     author_email = 'm8r0wn@protonmail.com',
     description = 'Subdomain Enumeration Tool',

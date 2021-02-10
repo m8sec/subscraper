@@ -12,13 +12,11 @@ from subscraper.sub_handler import SubHandler, SubReporter
 from subscraper.helpers import dns_lookup, respcode
 from ipparser import ipparser
 
-
 def takeover_check(target):
     for cname in dns_lookup(target, 'CNAME'):
         http = respcode(target, proto='http')
         https = respcode(target, proto='https')
         stdout.write("{:<45}\t({:<3}/{:<3})\t{}\n".format(target, http, https, cname))
-
 
 def takeover(args, targets):
     stdout.write("\n\033[1;30m[*] Subdomain Takeover Check\033[1;m\n")
@@ -33,7 +31,6 @@ def takeover(args, targets):
     except KeyboardInterrupt:
         stdout.write("\n[!] Key Event Detected...\n\n")
         return
-
 
 def subenum(args, targets):
     reporter = SubReporter(args)
@@ -73,14 +70,13 @@ def subenum(args, targets):
 
     except KeyboardInterrupt:
         stdout.write("\n[!] Key Event Detected...\n\n")
-        try:
-            reporter.close()
-        except:
-            pass
+        reporter.stop()
         return len(reporter.complete)
 
     except Exception as e:
         stdout.write("\033[1;30m{:<13}\t{:<25}\033[1;m\n".format('[Error-01]', str(e)))
+    finally:
+        reporter.close()
 
 
 def file_exists(parser, filename):
