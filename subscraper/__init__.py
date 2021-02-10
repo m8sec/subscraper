@@ -88,7 +88,7 @@ def file_exists(parser, filename):
 
 
 def main():
-    VERSION = "2.2.0"
+    VERSION = "2.2.1"
     print("""\033[1;30m
       ____        _    ____                                 
      / ___| _   _| |__/ ___|  ___ _ __ __ _ _ __   ___ _ __ 
