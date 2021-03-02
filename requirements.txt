@@ -1,3 +1,4 @@
+ipparser
 bs4
 dnspython
 requests
