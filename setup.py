@@ -20,6 +20,7 @@ setup(
       'subscraper': ['resources/*']
     },
     install_requires=[
+        'ipparser',
         'bs4',
         'dnspython',
         'requests',
