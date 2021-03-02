@@ -1,7 +1,18 @@
 # SubScraper
-![](https://img.shields.io/badge/Python-3.6+-blue.svg)&nbsp;&nbsp;
-![](https://img.shields.io/badge/License-GPL%203.0-green.svg)&nbsp;&nbsp;
-![](https://img.shields.io/badge/Call%20for%20Modules-OPEN-green.svg)
+<p align="left">
+    <a href="https://github.com/m8r0wn/subscraper/tree/master/subscraper/modules">
+     <img src="https://img.shields.io/badge/Call%20for%20Modules-OPEN-green?style=plastic"/>
+   </a>&nbsp;
+    <a href="https://www.twitter.com/m8r0wn">
+        <img src="https://img.shields.io/badge/Twitter-@m8r0wn-blue?style=plastic&logo=twitter"/>
+    </a>&nbsp;
+    <a href="https://github.com/sponsors/m8r0wn">
+        <img src="https://img.shields.io/badge/Sponsor-GitHub-green?style=plastic&logo=github"/>
+    </a>&nbsp;
+    <a href="https://www.paypal.com/donate?hosted_button_id=68W8UCUF4SMTCn">
+        <img src="https://img.shields.io/badge/Donate-PayPal-blue?style=plastic&logo=paypal"/>
+    </a>&nbsp;
+ </p>
 
 SubScraper is a subdomain enumeration tool that uses a variety of techniques to find potential subdomains of a given target. This is especially helpful during penetration testing or bug bounty hunting to uncover additional attack surfaces. Depending on the the CMD args used, SubScraper can perform DNS lookups and HTTP/S requests during the enumeration process to help prioritize targets and aid in potential next steps.
 
