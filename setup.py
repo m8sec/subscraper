@@ -24,7 +24,7 @@ setup(
         'bs4',
         'dnspython',
         'requests',
-        'censys'
+        'censys==2.0.0'
     ],
     classifiers = [
         "Environment :: Console",

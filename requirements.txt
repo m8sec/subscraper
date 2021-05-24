@@ -2,4 +2,4 @@ ipparser
 bs4
 dnspython
 requests
-censys
+censys==2.0.0

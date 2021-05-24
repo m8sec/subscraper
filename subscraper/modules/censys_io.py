@@ -1,7 +1,6 @@
 from sys import stdout
-from time import sleep
-import censys.certificates
-from threading import Thread
+
+from censys.search import CensysCertificates
 
 class CensysIO():
     def __init__(self, args, target, handler):
@@ -24,7 +23,7 @@ class CensysIO():
             return
 
         try:
-            certs = censys.certificates.CensysCertificates(api_id=self.api, api_secret=self.secret)
+            certs = CensysCertificates(api_id=self.api, api_secret=self.secret)
             resp = certs.search("parsed.names: {}".format(self.target), fields=['parsed.names'])
             for line in resp:
                 for sub in line['parsed.names']:
