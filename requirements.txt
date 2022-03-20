@@ -1,0 +1,5 @@
+ipparser
+bs4
+dnspython
+requests
+censys==2.0.0
