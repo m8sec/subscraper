@@ -39,7 +39,7 @@ SubScraper is a subdomain enumeration tool that uses a variety of techniques to 
 ## Install
 
 ```bash
-git clone https://github.com/m8sec/subscraper
+git clone https://github.com/m8r0wn/subscraper
 cd subscraper
 python3 setup.py install
 ```
