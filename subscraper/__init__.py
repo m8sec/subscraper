@@ -1,82 +1,63 @@
 #!/usr/bin/env python3
-
 import argparse
-from os import path
+from sys import argv
 from time import sleep
+from os import path, listdir
 from datetime import datetime
-from sys import stdout
-from threading import Thread, activeCount
-from subscraper.modules import MODULES, get_module_class
-from subscraper.sub_handler import SubHandler, SubReporter
-from subscraper.helpers import dns_lookup, respcode
-from ipparser import ipparser
+from threading import activeCount
+from subscraper.modules import ModuleLoader
+from subscraper.support import target_parser
+from subscraper.support.cli import highlight
+from subscraper.support.sub_handler import SubHandler, SubReporter
 
-def takeover_check(target):
-    for cname in dns_lookup(target, 'CNAME'):
-        http = respcode(target, proto='http')
-        https = respcode(target, proto='https')
-        stdout.write("{:<45}\t({:<3}/{:<3})\t{}\n".format(target, http, https, cname))
+def banner():
+    version = '3.0.0'
+    banner = """                 
+     ___      _    ___                            
+    / __|_  _| |__/ __| __ _ _ __ _ _ __  ___ _ _ 
+    \__ \ || | '_ \__ \/ _| '_/ _` | '_ \/ -_) '_|
+    |___/\_,_|_.__/___/\__|_| \__,_| .__/\___|_| v{}
+                                   |_|           @m8r0wn
+    """.format(version)
+    print(highlight(banner, 'gray'))
 
-def takeover(args, targets):
-    stdout.write("\n\033[1;30m[*] Subdomain Takeover Check\033[1;m\n")
-    stdout.write("\033[1;30m{:<45}\t({:<9})\t{}\033[1;m\n".format('Subdomain', 'http/https', 'CNAME Record'))
-    try:
-        for target in targets:
-            Thread(target=takeover_check, args=(target,), daemon=True).start()
-            while activeCount() > args.max_threads:
-                sleep(0.001)
-        while activeCount() > 1:
-            sleep(0.005)
-    except KeyboardInterrupt:
-        stdout.write("\n[!] Key Event Detected...\n\n")
-        return
+def print_headers(args):
+    title_headers = '{:<15} {:<35} '.format('Source', 'Subdomain')
+    title_headers += '{:<10}   '.format('HTTP/HTTPS') if args.http else ''
+    title_headers += '{:<35} '.format('Takeover (CNAME)') if args.takeover else ''
+    title_headers += '{:<20} '.format('DNS (A)') if args.dns else ''
+    print(highlight(title_headers, 'gray'))
 
 def subenum(args, targets):
     reporter = SubReporter(args)
-    reporter.daemon = True
     reporter.start()
-    handler = SubHandler(reporter, args.sub_enum)
-
-    # Header
-    insrt = ''
-    if args.sub_enum >= 3:
-        insrt = '({:<9})\t{}'.format('http/https', 'DNS Resolution')
-    elif args.sub_enum >= 2:
-        insrt = 'DNS Resolution'
-    stdout.write("\n\033[1;30m{:<20} {:<40}\t{}\033[1;m\n".format('[Source]', 'Subdomain', insrt))
+    report_handler = SubHandler(reporter, args)
+    print_headers(args)
 
     try:
         for target in targets:
-            for module in MODULES:
-                module_class = get_module_class(module)
-                class_obj    = module_class(args, target, handler)
-
-                # Brute force methods
-                if args.scrape and 'brute' in class_obj.method:
-                    Thread(target=class_obj.execute, args=(), daemon=True).start()
-
-                # Scraping methods
-                elif args.brute and 'scrape' in class_obj.method:
-                    Thread(target=class_obj.execute, args=(), daemon=True).start()
-
+            for module in args.modules.split(','):
+                for mod_file in listdir(path.join(path.dirname(__file__), 'modules')):
+                    if mod_file[-3:] == '.py' and mod_file[:-3] != '__init__':
+                        mod_class = ModuleLoader.get_moduleClass(mod_file[:-3], args, target, report_handler)
+                        if module == mod_class.name or module in mod_class.groups:
+                            mod_class.start()
                 while activeCount() > args.max_threads:
-                    sleep(0.001)
-
+                    sleep(0.003)
         while activeCount() > 2:
-            sleep(0.05)
+            sleep(0.03)
         reporter.stop()
         return len(reporter.complete)
 
     except KeyboardInterrupt:
-        stdout.write("\n[!] Key Event Detected...\n\n")
         reporter.stop()
+        print("\n[!] Key Event Detected...\n")
         return len(reporter.complete)
 
     except Exception as e:
-        stdout.write("\033[1;30m{:<13}\t{:<25}\033[1;m\n".format('[Error-01]', str(e)))
+        print('SubScraper:main::{}'.format(e))
     finally:
         reporter.close()
-
 
 def file_exists(parser, filename):
     if not filename:
@@ -85,49 +66,88 @@ def file_exists(parser, filename):
         parser.error("Input file not found: {}".format(filename))
     return [x.strip() for x in open(filename)]
 
+def adjust_all(args):
+    setattr(args, 'dns', True if args.all else args.dns)
+    setattr(args, 'http', True if args.all else args.http)
+    setattr(args, 'takeover', True if args.all else args.takeover)
 
 def main():
-    VERSION = "2.2.1"
-    print("""\033[1;30m
-      ____        _    ____                                 
-     / ___| _   _| |__/ ___|  ___ _ __ __ _ _ __   ___ _ __ 
-     \___ \| | | | '_ \___ \ / __| '__/ _` | '_ \ / _ \ '__|
-      ___) | |_| | |_) |__) | (__| | | (_| | |_) |  __/ |   
-     |____/ \__,_|_.__/____/ \___|_|  \__,_| .__/ \___|_|   
-                                           |_|            v{} \033[1;m""".format(VERSION))
-    args = argparse.ArgumentParser(description="""
----------------------------------------------------------------""", formatter_class=argparse.RawTextHelpFormatter, usage=argparse.SUPPRESS)
+    banner()
+    args = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter, usage=argparse.SUPPRESS)
     options = args.add_argument_group("SubScraper Options")
-    options.add_argument('-T', dest='max_threads', type=int, default=55, help='Max threads')
-    options.add_argument('-t', dest='timeout', type=int, default=25, help='Timeout [seconds] for search threads (Default: 25)')
-    options.add_argument('-o', dest='report', type=str, default='./subscraper_report.txt', help="Output to specific file")
-    options.add_argument(dest='target', nargs='+', help='Target domain (Positional)')
+    options.add_argument('-T',
+                         dest='max_threads',
+                         type=int, default=55,
+                         help='Max threads for enumeration (Default: 55).'
+    )
+    options.add_argument('-t',
+                         dest='timeout',
+                         type=int,
+                         default=25,
+                         help='Timeout [seconds] for search threads (Default: 25).'
+    )
+    options.add_argument('-r',
+                         dest='report',
+                         type=str,
+                         default='./subscraper_report.txt',
+                         help="Output to specific file {txt*, csv}."
+    )
+    options.add_argument(dest='target',
+                         nargs='+',
+                         help='Target domain.'
+    )
+    sub = args.add_argument_group("Module Options")
+    sub.add_argument('-L',
+                     dest="list_modules",
+                     action='store_true',
+                     help='List SubScraper enumeration modules.'
+    )
+    sub.add_argument('-M',
+                     dest="modules",
+                     type=str,
+                     default='all',
+                     help="Execute module(s) by name or group (Default: all)."
+    )
+    sub.add_argument('-w',
+                     dest='wordlist',
+                     default=path.join(path.dirname(path.realpath(__file__)), 'resources', 'subdomains.txt'),
+                     type=lambda x: file_exists(args, x), help='Custom wordlist for DNS brute force.'
+    )
 
-    sub = args.add_argument_group("Enumeration Options")
-    sub.add_argument('-s', dest="scrape", action='store_false', help="Only use scraping techniques")
-    sub.add_argument('-b', dest="brute", action='store_false', help="Only use DNS brute force")
-    sub.add_argument('-w', dest="sublist",default=path.join(path.dirname(path.realpath(__file__)), 'resources/subdomains.txt'), type=lambda x: file_exists(args, x), help='Custom subdomain wordlist')
-    sub.add_argument('-e','--enum', metavar='LVL', dest="sub_enum", type=int, default=1, help="Enumeration Level:\n"
-                                                                                                "1: Subdomain Only (Default)\n"
-                                                                                                "2: Live subdomains, verified by DNS\n"
-                                                                                                "3: Live check & get HTTP/S response codes")
+    enum = args.add_argument_group("Enumeration Options")
+    enum.add_argument('--dns',
+                      dest="dns",
+                      action='store_true',
+                      help='Resolve DNS address for each subdomain identified.'
+    )
+    enum.add_argument('--http',
+                      dest="http",
+                      action='store_true',
+                      help='Probe for active HTTP:80 & HTTPS:443 services.'
+    )
+    enum.add_argument('--takeover',
+                      dest="takeover",
+                      action='store_true',
+                      help='Perform CNAME lookup & probe for HTTP(s) response.'
+    )
+    enum.add_argument('--all',
+                      dest="all",
+                      action='store_true',
+                      help='Perform all checks on enumerated subdomains.'
+    )
 
-    adv = args.add_argument_group("Enumeration Advanced")
-    adv.add_argument('--censys-api', metavar='API', dest='censys_api', type=str, default='', help='Censys.io API Key')
-    adv.add_argument('--censys-secret', metavar='KEY', dest='censys_secret', type=str, default='', help='Censys.io Secret')
-
-    to = args.add_argument_group("Subdomain TakeOver")
-    to.add_argument('--takeover', dest="takeover", action='store_true', help='Perform takeover check on list of subs')
+    if len(argv) < 2: args.print_help(); exit(0)
+    if "-L" in argv: ModuleLoader.list_modules(); exit(0)
     args = args.parse_args()
+    adjust_all(args)
 
-    if args.takeover:
-        takeover(args, ipparser(args.target[0]))
-    else:
-        start_timer = datetime.now()
-        count = subenum(args, ipparser(args.target[0]))
-        stop_timer = datetime.now()
-        stdout.write("\n\033[1;30m[*] Identified {} subdomain(s) in {}\n\033[1;m".format(count, stop_timer - start_timer))
-        stdout.write("\033[1;30m[*] Subdomains written to {}\n\033[1;m".format(args.report))
+    start_timer = datetime.now()
+    count = subenum(args, target_parser(args.target))
+    stop_timer = datetime.now()
+
+    print(highlight("[*] Identified {} subdomain(s) in {}.".format(count, stop_timer - start_timer), 'gray'))
+    print(highlight("[*] Subdomains written to {}.".format(args.report), 'gray'))
+
 
 if __name__ == '__main__':
     main()

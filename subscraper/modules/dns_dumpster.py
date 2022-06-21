@@ -1,16 +1,21 @@
-from subscraper.helpers import get_request
+import threading
+from subscraper.support import get_request
 
-class DNSDumpster():
-    def __init__(self, args, target, handler):
-        self.description = "DNS Dumpster lookup"
-        self.author      = '@m8r0wn'
-        self.method      = ['scrape']
+class SubModule(threading.Thread):
+    name = 'dnsdumpster'
+    description = "Use DNS dumpster to enumerate subdomains."
+    author = '@m8r0wn'
+    groups = ['all', 'scrape']
+    args = {}
 
+    def __init__(self, args, target, print_handler):
+        threading.Thread.__init__(self)
+        self.daemon = True
+        self.handler = print_handler
+        self.target = target
         self.timeout = args.timeout
-        self.handler = handler
-        self.target  = target
 
-    def execute(self):
+    def run(self):
         link = "https://api.hackertarget.com/hostsearch/?q={}".format(self.target)
         try:
             resp = get_request(link, self.timeout)
@@ -19,7 +24,7 @@ class DNSDumpster():
                     if line.count('.') > 1:
                         sub = self.sub_extractor(line)
                         if sub:
-                            self.handler.sub_handler({'Name': sub, 'Source': 'DNS-Dumpster'})
+                            self.handler.sub_handler({'Name': sub, 'Source': self.name})
         except:
             pass
 

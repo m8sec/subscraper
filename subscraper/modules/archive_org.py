@@ -1,17 +1,22 @@
+import threading
 from urllib.parse import urlparse
-from subscraper.helpers import get_request
+from subscraper.support import get_request
 
-class WaybackMachine():
-    def __init__(self, args, target, handler):
-        self.description = "Search wayback machine (archive.org) for subdomains"
-        self.author      = '@m8r0wn'
-        self.method      = ['scrape']
+class SubModule(threading.Thread):
+    name = 'archiveorg'
+    description = "Use archive.org to find subdomains."
+    author = '@m8r0wn'
+    groups = ['all', 'scrape']
+    args = {}
 
+    def __init__(self, args, target, print_handler):
+        threading.Thread.__init__(self)
+        self.daemon = True
+        self.handler = print_handler
+        self.target = target
         self.timeout = args.timeout
-        self.handler = handler
-        self.target  = target
 
-    def execute(self):
+    def run(self):
         link = "http://web.archive.org/cdx/search/cdx?url=*.{}/*&output=json&collapse=urlkey".format(self.target)
         try:
             resp = get_request(link.format(self.target), self.timeout)
@@ -20,6 +25,6 @@ class WaybackMachine():
                     sub = urlparse(data[2]).netloc
                     if ":" in sub: # Parse out Port
                         sub = sub.split(":")[0]
-                    self.handler.sub_handler({'Name': sub, 'Source': 'Archive.org'})
+                    self.handler.sub_handler({'Name': sub, 'Source': self.name})
         except:
             pass

@@ -1,21 +1,25 @@
 import threading
-from subscraper.helpers import dns_lookup
+from subscraper.support import dns_lookup
 
-class DNSBrute():
-    def __init__(self, args, target, handler):
-        self.description = "DNS Brute Forcer"
-        self.author      = '@m8r0wn'
-        self.method      = ['brute']
+class SubModule(threading.Thread):
+    name = 'dnsbrute'
+    description = "DNS bruteforce."
+    author = '@m8r0wn'
+    groups = ['all', 'brute']
+    args = {}
 
-        self.handler    = handler
-        self.target     = target
-        self.sublist    = args.sublist
+    def __init__(self, args, target, print_handler):
+        threading.Thread.__init__(self)
+        self.daemon = True
+        self.handler = print_handler
+        self.target = target
+        self.timeout = args.timeout
+        self.wordlist = args.wordlist
 
-    def execute(self):
+    def run(self):
         active_th = []
-        for s in self.sublist:
-            sub = s + '.' + self.target
-            th = threading.Thread(target=self.resolver, args=(sub,),)
+        for s in self.wordlist:
+            th = threading.Thread(target=self.resolver, args=('{}.{}'.format(s, self.target),))
             th.daemon = True
             active_th.append(th)
             th.start()
@@ -34,6 +38,6 @@ class DNSBrute():
         try:
             dns_query = dns_lookup(sub, 'A')
             if dns_query:
-                self.handler.sub_handler({'Name': sub, 'Source': 'DNS-Brute', 'DNS': dns_query})
+                self.handler.sub_handler({'Name': sub, 'Source': self.name, 'DNS': dns_query})
         except:
             pass

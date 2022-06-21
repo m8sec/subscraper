@@ -1,34 +1,41 @@
+import threading
 from re import compile
 from time import sleep
 from threading import Thread
-from subscraper.helpers import get_links, get_request
+from bs4 import BeautifulSoup
+from subscraper.support import get_request
 
-class WebScraper():
-    def __init__(self, args, target, handler):
-        self.description = "Google and Bing search engine scraper"
-        self.author      = '@m8r0wn'
-        self.method      = ['scrape']
+class SubModule(threading.Thread):
+    name = 'search'
+    description = "Subdomain enumeration via search engine scraping."
+    author = '@m8r0wn'
+    groups = ['all', 'scrape']
+    args = {}
+
+    def __init__(self, args, target, print_handler):
+        threading.Thread.__init__(self)
+        self.daemon = True
 
         self.search_sites = ['google', 'bing']
-        self.timeout      = args.timeout
-        self.target       = target
-        self.handler      = handler
+        self.handler = print_handler
+        self.target = target
+        self.timeout = args.timeout
 
-    def execute(self):
+    def run(self):
+        # Launch subthreads per search site:
         for search_engine in self.search_sites:
             Thread(target=self.launcher, args=(search_engine,)).start()
 
     def launcher(self, search_engine):
-            for link in SiteSearch().search(search_engine, self.target, self.timeout):
+            for link in SearchScraper().search(search_engine, self.target, self.timeout):
                 try:
                     sub = link.split("/")[2].strip().lower()
                     if ".{}".format(self.target) in sub:
-                        self.handler.sub_handler({'Name': sub, 'Source': '{}-Search'.format(search_engine.title())})
+                        self.handler.sub_handler({'Name': sub, 'Source': '{}-search'.format(search_engine)})
                 except:
                     pass
 
-class SiteSearch():
-    # Use search engine(s) to search for links associated with a single site
+class SearchScraper():
     URL = {'google': 'https://www.google.com/search?q=site:{}&num=100&start={}',
            'bing': 'http://www.bing.com/search?q=site:{}&first={}'}
 
@@ -72,3 +79,15 @@ class SiteSearch():
                     self.site_links += 1
                     if link not in self.links:
                         self.links.append(link)
+
+
+def get_links(raw_response):
+    # HTLM Parser to extract links for search engine scraping
+    links = []
+    soup = BeautifulSoup(raw_response.content, 'html.parser')
+    for link in soup.findAll('a'):
+        try:
+            links.append(str(link.get('href')))
+        except:
+            pass
+    return links

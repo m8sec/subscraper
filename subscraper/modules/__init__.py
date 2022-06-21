@@ -1,19 +1,26 @@
 import importlib
+from os import listdir, path
+from argparse import Namespace
+from subscraper.support.cli import highlight
 
-MODULES = {
-        # File Name      Class Name
-        'dns_brute'    : 'DNSBrute',
-        'web_scraper'  : 'WebScraper',
-        'censys_io'    : 'CensysIO',
-        'dns_dumpster' : 'DNSDumpster',
-        'wayback_machine' : 'WaybackMachine',
-        'crt_sh' : 'CrtSh',
-        'dns_bufferover_run' : 'DNSBufferOverRun',
-        'threatcrowd' : 'ThreatCrowd',
-    }
+class ModuleLoader():
+    module_path = path.join(path.dirname(__file__))
 
-def get_module_class(name):
-    cname = MODULES[name]
-    modname = '.'.join([__name__, name])
-    module = importlib.import_module(modname)
-    return getattr(module, cname)
+    @classmethod
+    def get_moduleClass(cls, module, args, target, report_handler):
+        p_path = '.'.join(['subscraper', 'modules', module])
+        return importlib.import_module(p_path).SubModule(args, target, report_handler)
+
+    @classmethod
+    def list_modules(cls):
+        print(highlight("\n  {:15}   {}\n".format('Module Name', 'Description'), 'gray'))
+        for module in listdir(cls.module_path):
+            if module[-3:] == '.py' and module[:-3] != '__init__':
+                mod_class = cls.get_moduleClass(module[:-3], gen_context(), False, False)
+                print("  {:20} - {}".format(mod_class.name, mod_class.description))
+                for k, v in mod_class.args.items():
+                    print('    |_{:24} {:30} (Required:{})'.format(k, v['Description'], v['Required']))
+
+def gen_context():
+    # Idle Namespace to list modules
+    return Namespace(timeout=1, wordlist=[])
