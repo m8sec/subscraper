@@ -11,7 +11,7 @@ from subscraper.support.cli import highlight
 from subscraper.support.sub_handler import SubHandler, SubReporter
 
 def banner():
-    version = '3.0.0'
+    version = '3.0.1'
     banner = """                 
      ___      _    ___                            
     / __|_  _| |__/ __| __ _ _ __ _ _ __  ___ _ _ 
@@ -68,7 +68,7 @@ def file_exists(parser, filename):
 
 def adjust_all(args):
     setattr(args, 'dns', True if args.all else args.dns)
-    setattr(args, 'http', True if args.all else args.http)
+    setattr(args, 'http', True if args.all or args.takeover else args.http)
     setattr(args, 'takeover', True if args.all else args.takeover)
 
 def main():

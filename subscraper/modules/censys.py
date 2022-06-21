@@ -3,8 +3,8 @@ from sys import stdout
 from censys.search import CensysCertificates
 
 class SubModule(threading.Thread):
-    name = 'censysio'
-    description = "Gather subdomains through Censys SSL cert Lookups."
+    name = 'censys'
+    description = "Gather subdomains through censys.io SSL cert Lookups."
     author = '@m8r0wn'
     groups = ['all', 'scrape']
     args = {

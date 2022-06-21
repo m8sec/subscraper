@@ -79,7 +79,7 @@ Modules can be executed by name or by module groups:
   dnsdumpster          - Use DNS dumpster to enumerate subdomains.
   bufferoverrun        - Bufferover.run passive enumeration.
   search               - Subdomain enumeration via search engine scraping.
-  censysio             - Gather subdomains through Censys SSL cert Lookups.
+  censys               - Gather subdomains through censys.io SSL cert Lookups.
     |_APIKEY                   Censys.io API Key              (Required:True)
     |_SECRET                   Censys.io API Secret           (Required:True)
 ```
@@ -95,13 +95,14 @@ subscraper targets.txt
 cat targets.txt | subscraper pipe
 subscraper -all -r enumeration.csv example.com
 subscraper -M brute -w mywords.txt example.com
-subscraper -M censys_io -o 'APIKEY=abc123,SECRET=xyz456' example.com
+subscraper -M censys -o 'APIKEY=abc123,SECRET=xyz456' example.com
 ```
 
 #### Execution Notes
-* SubScraper only uses **PASSIVE** enumeration techniques unless the `--http` or `--all` arguments are applied. 
-* API keys are required for the `censysio` module, register for free at [censys.io/register](https://search.censys.io/register).
-* When output data to `.csv` report AND `--http` or `-all` args applied, additional data such as page size, title and Server headers are reported. 
+* SubScraper only uses **PASSIVE** enumeration techniques unless `all, http, takeover` arguments are applied. 
+* API keys are required for the `censys` module, register for free at [censys.io/register](https://search.censys.io/register).
+* `.txt` reports will only include subdomains. 
+* `.csv` reports, when paired with cmd args `all, http, takeover`, will provide additional HTTP data such as page size, title, and Server headers. 
 
 ## Contribute
 Contribute to the project by:
