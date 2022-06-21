@@ -105,5 +105,5 @@ subscraper -M censys_io -o 'APIKEY=abc123,SECRET=xyz456' example.com
 
 ## Contribute
 Contribute to the project by:
-* Downloading and sharing the tool!
+* Like and share the tool!
 * Create an issue to report new enumeration techniques or, better yet, develop a module and initiate a PR.
