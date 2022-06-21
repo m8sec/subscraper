@@ -100,7 +100,7 @@ subscraper -M censys_io -o 'APIKEY=abc123,SECRET=xyz456' example.com
 
 #### Execution Notes
 * SubScraper only uses **PASSIVE** enumeration techniques unless the `--http` or `--all` arguments are applied. 
-* API keys are required for the `censys_io` module, register for free at [censys.io/register](https://search.censys.io/register).
+* API keys are required for the `censysio` module, register for free at [censys.io/register](https://search.censys.io/register).
 * When output data to `.csv` report AND `--http` or `-all` args applied, additional data such as page size, title and Server headers are reported. 
 
 ## Contribute
