@@ -29,7 +29,7 @@ Depending on the CMD arguments applied, SubScraper can resolve DNS names, reques
 
 - Modular design makes it easy to add new techniques/sources.
 - Various levels of enumeration for additional data gathering.
-- Allows for multiple target inputs or read targets from txt file.
+- Allows for multiple target inputs or read targets from `.txt` file.
 - Windows CLI compatibility. 
 - Generate output files in `.txt` or `.csv` format.
 
@@ -50,21 +50,23 @@ python3 setup.py install
 #### Command Line Args
 ```
 SubScraper Options:
-  -T MAX_THREADS  Max threads for enumeration (Default: 55).
-  -t TIMEOUT      Timeout [seconds] for search threads (Default: 25).
-  -r REPORT       Output to specific file {txt*, csv}.
-  target          Target domain.
+  -T MAX_THREADS        Max threads for enumeration (Default: 55).
+  -t TIMEOUT            Timeout [seconds] for search threads (Default: 25).
+  -r REPORT             Output to specific file {txt*, csv}.
+  target                Target domain.
 
 Module Options:
-  -L              List SubScraper enumeration modules.
-  -M MODULES      Execute module(s) by name or group (Default: all).
-  -w WORDLIST     Custom wordlist for DNS brute force.
+  -L                    List SubScraper enumeration modules.
+  -M MODULES            Execute module(s) by name or group (Default: all).
+  -w WORDLIST           Custom wordlist for DNS brute force.
+  --censys-id CENSYS_ID             Censys.io API ID.
+  --censys-secret CENSYS_SECRET     Censys.io API Secret.
 
 Enumeration Options:
-  --dns           Resolve DNS address for each subdomain identified.
-  --http          Probe for active HTTP:80 & HTTPS:443 services.
-  --takeover      Perform CNAME lookup & probe for HTTP(s) response.
-  --all           Perform all checks on enumerated subdomains.
+  --dns                 Resolve DNS address for each subdomain identified.
+  --http                Probe for active HTTP:80 & HTTPS:443 services.
+  --takeover            Perform CNAME lookup & probe for HTTP(s) response.
+  --all                 Perform all checks on enumerated subdomains.
 ```
 
 #### Modules
@@ -95,7 +97,7 @@ subscraper targets.txt
 cat targets.txt | subscraper pipe
 subscraper -all -r enumeration.csv example.com
 subscraper -M brute -w mywords.txt example.com
-subscraper -M censys -o 'APIKEY=abc123,SECRET=xyz456' example.com
+subscraper -M censys --censys-id abc123 --censys-secret xyz456 example.com
 ```
 
 #### Execution Notes

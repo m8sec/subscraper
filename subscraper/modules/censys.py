@@ -1,6 +1,7 @@
 import threading
 from sys import stdout
 from censys.search import CensysCertificates
+from subscraper.support.cli import highlight
 
 class SubModule(threading.Thread):
     name = 'censys'
@@ -8,12 +9,12 @@ class SubModule(threading.Thread):
     author = '@m8r0wn'
     groups = ['all', 'scrape']
     args = {
-        'APIKEY': {
-            'Description': 'Censys.io API Key',
+        'API_ID': {
+            'Description': 'Censys.io API ID',
             'Required': True,
             'Value': ''
         },
-        'SECRET': {
+        'API_SECRET': {
             'Description': 'Censys.io API Secret',
             'Required': True,
             'Value': ''
@@ -22,17 +23,20 @@ class SubModule(threading.Thread):
 
     def __init__(self, args, target, print_handler):
         threading.Thread.__init__(self)
-        self.daemon  = True
+        self.daemon = True
         self.handler = print_handler
-        self.target  = target
+        self.target = target
         self.timeout = args.timeout
+        self.args['API_ID']['Value'] = args.censys_id
+        self.args['API_SECRET']['Value'] = args.censys_secret
+
 
     def run(self):
-        if not self.args['APIKEY']['Value'] or not self.args['APISECRET']['Value']:
+        if not self.args['API_ID']['Value'] or not self.args['API_SECRET']['Value']:
             return False
 
         try:
-            certs = CensysCertificates(api_id=self.api, api_secret=self.secret)
+            certs = CensysCertificates(api_id=self.args['API_ID']['Value'], api_secret=self.args['API_SECRET']['Value'])
             resp = certs.search("parsed.names: {}".format(self.target), fields=['parsed.names'])
             for line in resp:
                 for sub in line['parsed.names']:
@@ -41,8 +45,9 @@ class SubModule(threading.Thread):
 
         except Exception as e:
             if str(e).startswith('403 (unauthorized):'):
-                stdout.write("\033[1;33m[!]\033[1;m \033[1;30mCensys.IO Authentication Failed: verify API Key/Secret\033[1;m\n")
+                print(highlight('[!]', 'yellow'),
+                      highlight('Censys Authentication Failed: Verify API ID & Secret.', 'gray'))
             elif '400 (max_results)' in str(e):
                 pass
             else:
-                stdout.write("\033[1;33m[!]\033[1;m \033[1;30mCensys.IO Error: {}\033[1;m\n".format(str(e)))
+                print(highlight('[!]', 'yellow'), highlight('Censys.IO Error: {}.'.format(e), 'gray'))

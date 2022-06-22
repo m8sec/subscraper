@@ -11,7 +11,7 @@ from subscraper.support.cli import highlight
 from subscraper.support.sub_handler import SubHandler, SubReporter
 
 def banner():
-    version = '3.0.1'
+    version = '3.0.2'
     banner = """                 
      ___      _    ___                            
     / __|_  _| |__/ __| __ _ _ __ _ _ __  ___ _ _ 
@@ -96,22 +96,36 @@ def main():
                          nargs='+',
                          help='Target domain.'
     )
-    sub = args.add_argument_group("Module Options")
-    sub.add_argument('-L',
+    mod = args.add_argument_group("Module Options")
+    mod.add_argument('-L',
                      dest="list_modules",
                      action='store_true',
                      help='List SubScraper enumeration modules.'
     )
-    sub.add_argument('-M',
+    mod.add_argument('-M',
                      dest="modules",
                      type=str,
                      default='all',
                      help="Execute module(s) by name or group (Default: all)."
     )
-    sub.add_argument('-w',
+    mod.add_argument('-w',
                      dest='wordlist',
                      default=path.join(path.dirname(path.realpath(__file__)), 'resources', 'subdomains.txt'),
                      type=lambda x: file_exists(args, x), help='Custom wordlist for DNS brute force.'
+    )
+
+    mod.add_argument('--censys-id',
+                      dest="censys_id",
+                      type=str,
+                      default=False,
+                      help='Censys.io API ID.'
+    )
+
+    mod.add_argument('--censys-secret',
+                      dest="censys_secret",
+                      type=str,
+                      default=False,
+                      help='Censys.io API Secret.'
     )
 
     enum = args.add_argument_group("Enumeration Options")

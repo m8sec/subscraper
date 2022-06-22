@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name='SubScraper',
-    version='3.0.1',
+    version='3.0.2',
     author='m8r0wn',
     author_email='m8r0wn@protonmail.com',
     description='Subdomain Enumeration Tool',
@@ -24,7 +24,7 @@ setup(
         'bs4',
         'dnspython',
         'requests',
-        'censys>=2.0.0'
+        'censys>=2.1.6'
     ],
     classifiers= [
         "Environment :: Console",
