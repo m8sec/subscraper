@@ -23,4 +23,9 @@ class ModuleLoader():
 
 def gen_context():
     # Idle Namespace to list modules
-    return Namespace(timeout=1, wordlist=[])
+    return Namespace(
+        timeout=1,
+        wordlist=[],
+        censys_id=False,
+        censys_secret=False
+    )

@@ -82,8 +82,8 @@ Modules can be executed by name or by module groups:
   bufferoverrun        - Bufferover.run passive enumeration.
   search               - Subdomain enumeration via search engine scraping.
   censys               - Gather subdomains through censys.io SSL cert Lookups.
-    |_APIKEY                   Censys.io API Key              (Required:True)
-    |_SECRET                   Censys.io API Secret           (Required:True)
+    |_API_ID                   Censys.io API ID               (Required:True)
+    |_API_SECRET               Censys.io API Secret           (Required:True)
 ```
 **Module Groups**
   * *all* - Execute all modules (Default).
