@@ -1,21 +1,21 @@
 # SubScraper
 
 <p align="center">
-  <a href="https://github.com/m8r0wn/subscraper/tree/master/subscraper/modules">
+  <a href="https://github.com/m8sec/subscraper/tree/master/subscraper/modules">
     <img src="https://img.shields.io/badge/Call%20for%20Modules-OPEN-green?style=plastic"/>
   </a>&nbsp;
-  <a href="https://www.twitter.com/m8r0wn">
-      <img src="https://img.shields.io/badge/Twitter-@m8r0wn-blue?style=plastic&logo=twitter"/>
+  <a href="https://www.twitter.com/m8sec">
+      <img src="https://img.shields.io/badge/Twitter-@m8sec-blue?style=plastic&logo=twitter"/>
   </a>&nbsp;
-  <a href="https://github.com/sponsors/m8r0wn">
+  <a href="https://github.com/sponsors/m8sec">
       <img src="https://img.shields.io/badge/Sponsor-GitHub-red?style=plastic&logo=github"/>
   </a>
   <br>
-    <a href="https://github.com/m8r0wn/subscraper#subscraper">Overview</a>
+    <a href="https://github.com/m8sec/subscraper#subscraper">Overview</a>
     &nbsp;&nbsp;:small_blue_diamond:&nbsp;&nbsp;
-    <a href="https://github.com/m8r0wn/subscraper#usage">Usage</a>
+    <a href="https://github.com/m8sec/subscraper#usage">Usage</a>
     &nbsp;&nbsp;:small_blue_diamond:&nbsp;&nbsp;
-    <a href="https://github.com/m8r0wn/subscraper#contribute">Contribute</a>
+    <a href="https://github.com/m8sec/subscraper#contribute">Contribute</a>
   <br>
 </p>
 
@@ -41,7 +41,7 @@ Depending on the CMD arguments applied, SubScraper can resolve DNS names, reques
 The following can be used to install SubScraper on Windows, Linux, & MacOs:
 
 ```bash
-git clone https://github.com/m8r0wn/subscraper
+git clone https://github.com/m8sec/subscraper
 cd subscraper
 python3 setup.py install
 ```
