@@ -19,7 +19,8 @@
   <br>
 </p>
 
-:boom: **v3.0 now available!** :boom:
+<p align="center">💥<b>v3.0 now available!</b>💥</p>
+
 
 SubScraper is a fast subdomain enumeration tool that uses a variety of techniques to find subdomains of a given target. Subdomain enumeration is especially helpful during penetration testing and bug bounty hunting to uncover an organization's attack surface.
 
