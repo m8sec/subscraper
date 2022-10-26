@@ -114,6 +114,12 @@ def main():
                      type=lambda x: file_exists(args, x), help='Custom wordlist for DNS brute force.'
     )
 
+    mod.add_argument('--bevigil_key',
+                      dest='bevigil_key',
+                      type=str,
+                      default=False,
+                      help='BeVigil OSINT API Key')
+
     mod.add_argument('--censys-id',
                       dest="censys_id",
                       type=str,

@@ -20,3 +20,4 @@ __pycache__/
 # reports
 subscraper_report.txt
 *.csv
+.venv/

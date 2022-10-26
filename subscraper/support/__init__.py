@@ -27,7 +27,7 @@ def dns_lookup(target, lookup_type):
         pass
     return results
 
-def get_request(link, timeout):
+def get_request(link, timeout, headers=None):
     head = {
         'User-Agent': '{}'.format(choice(USER_AGENTS)),
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
@@ -35,6 +35,10 @@ def get_request(link, timeout):
         'Accept-Encoding': 'gzip, deflate',
         'DNT': '1',
         'Upgrade-Insecure-Requests': '1'}
+    
+    if headers:
+        head.update(headers)
+        
     try:
         return get(link, headers=head, verify=False, timeout=timeout)
     except:
