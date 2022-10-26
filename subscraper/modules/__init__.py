@@ -27,5 +27,6 @@ def gen_context():
         timeout=1,
         wordlist=[],
         censys_id=False,
-        censys_secret=False
+        censys_secret=False,
+        bevigil_key=False
     )

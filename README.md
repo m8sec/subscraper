@@ -84,6 +84,8 @@ Modules can be executed by name or by module groups:
   censys               - Gather subdomains through censys.io SSL cert Lookups.
     |_API_ID                   Censys.io API ID               (Required:True)
     |_API_SECRET               Censys.io API Secret           (Required:True)
+  bevigil              - Gather subdomains through bevigil.com mobile app scan data
+    |_API_Key                  BeVigil API Key                (Required:True)
 ```
 **Module Groups**
   * *all* - Execute all modules (Default).
