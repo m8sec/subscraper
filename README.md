@@ -5,11 +5,10 @@
     <img src="https://img.shields.io/badge/Call%20for%20Modules-OPEN-green?style=plastic"/>
   </a>&nbsp;
   <a href="https://www.twitter.com/m8sec">
-      <img src="https://img.shields.io/badge/Twitter-@m8sec-blue?style=plastic&logo=twitter"/>
-  </a>&nbsp;
-  <a href="https://github.com/sponsors/m8sec">
-      <img src="https://img.shields.io/badge/Sponsor-GitHub-red?style=plastic&logo=github"/>
-  </a>
+        <img src="https://img.shields.io/badge/Twitter-@m8sec-gray?logo=twitter"/>
+    </a>&nbsp;
+    <img src="https://img.shields.io/badge/python-3.6%20|%203.7%20|%203.8%20|%203.9%20-blue.svg"/>&nbsp;
+  
   <br>
     <a href="https://github.com/m8sec/subscraper#subscraper">Overview</a>
     &nbsp;&nbsp;:small_blue_diamond:&nbsp;&nbsp;
