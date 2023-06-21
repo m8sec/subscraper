@@ -45,6 +45,19 @@ cd subscraper
 python3 setup.py install
 ```
 
+## Docker
+You can build a docker image and run subscraper from Docker:
+```
+git clone https://github.com/m8sec/subscraper.git
+cd subscraper
+docker build -t m8sec/subscraper .
+# display help
+docker run --rm m8sec/subscraper
+# example scanning a site
+docker run --rm m8sec/subscraper example.com
+```
+
+
 ## Usage
 #### Command Line Args
 ```
