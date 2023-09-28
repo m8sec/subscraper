@@ -10,7 +10,7 @@ setup(
     description='Subdomain Enumeration Tool',
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url='https://github.com/m8r0wn/subscraper',
+    url='https://github.com/m8sec/subscraper',
     license='GPLv3',
     packages=find_packages(include=[
         "subscraper", "subscraper.*"
