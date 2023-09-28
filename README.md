@@ -89,11 +89,11 @@ censys.io            - Gather subdomains through censys.io SSL cert Lookups. (AP
 SubScraper Options:
   -debug                Enable debug logging
   -update               Update config file (Will remove existing entries)
-  -config CONFIG        Override config location (Default ~/.config/subscraper/config.json)
+  -config CONFIG        Override default config location
   -silent               Show subdomains only in output
-  -threads THREADS, -T THREADS  Max threads for enumeration (65*).
-  -t TIMEOUT            set connection timeouts (3*)
-  target                Target domain.
+  -threads THREADS, -T THREADS    Max threads for enumeration (65*).
+  -t TIMEOUT                      set connection timeouts (3*)
+  -d DOMAIN, --domain DOMAIN      Target domain input (domain, .txt, STDIN, etc.
 
 Module Options:
   -ls                   List SubScraper enumeration modules.
