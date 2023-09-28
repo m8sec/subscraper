@@ -120,7 +120,7 @@ Output Options:
 ### Example Inputs
 ```
 python3 subscraper.py -d example.com -resolve -http -module-only
-python3 subscraper.py -d example.com -cname -m none
+python3 subscraper.py -d example.com -cname -m none -o sub_report.csv -csv
 cat domains.txt | python3 subscraper.py -active -silent
 ```
 
