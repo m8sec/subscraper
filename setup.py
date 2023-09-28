@@ -5,9 +5,8 @@ with open("README.md", "r") as fh:
 
 setup(
     name='SubScraper',
-    version='3.0.2',
-    author='m8r0wn',
-    author_email='m8r0wn@protonmail.com',
+    version='4.0.0',
+    author='m8sec',
     description='Subdomain Enumeration Tool',
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -17,14 +16,12 @@ setup(
         "subscraper", "subscraper.*"
     ]),
     package_data={
-      'subscraper': ['resources/*']
+      'subscraper': ['data/*']
     },
     install_requires=[
-        'ipparser',
-        'bs4',
-        'dnspython',
-        'requests',
-        'censys>=2.1.6'
+        'censys>=2.2.6',
+        'taser>=0.4.0',
+        'ipparser>=1.0.0',
     ],
     classifiers= [
         "Environment :: Console",

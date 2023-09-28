@@ -1,10 +1,12 @@
 import logging
 import threading
+from subscraper.utils import remove_wildcard
 from taser.http import web_request, get_statuscode
 
+
 class SubModule(threading.Thread):
-    name = 'dnsdumpster'
-    description = "Use DNS dumpster to enumerate subdomains."
+    name = 'certspotter'
+    description = "Use Certspotter API to collect subdomains"
     author = ['@m8sec']
     api_key = False
 
@@ -18,26 +20,19 @@ class SubModule(threading.Thread):
         self.report_q = report_q
 
     def run(self):
-        url = "https://api.hackertarget.com/hostsearch/?q={}".format(self.domain)
+        url = "https://api.certspotter.com/v1/issuances?domain={}&include_subdomains=true&expand=dns_names".format(self.domain)
         try:
             resp = web_request(url, timeout=self.args.timeout)
             status_code = get_statuscode(resp)
-            if status_code == 200:
-                for line in resp.text.splitlines():
-                    if line.count('.') > 1:
-                        sub = self.sub_extractor(line)
-                        if sub:
-                            self.report_q.add({'Name': sub, 'Source': self.name})
 
+            if status_code == 200:
+                for data in resp.json():
+                    for sub in data['dns_names']:
+                        if self.domain in sub:
+                            self.report_q.add({'Name': remove_wildcard(sub), 'Source': self.name})
             elif status_code == 429:
                 raise Exception(f'Too many requests ({status_code})')
             else:
                 raise Exception(f'Web request failed to {url} ({status_code})')
         except Exception as e:
             logging.debug(f'{self.name.upper()} ERR: {e}')
-
-    def sub_extractor(self, line):
-        try:
-            return line.split(",")[0]
-        except:
-            return False

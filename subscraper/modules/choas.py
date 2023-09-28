@@ -2,10 +2,11 @@ import logging
 import threading
 from taser.http import web_request, get_statuscode
 
+
 class SubModule(threading.Thread):
-    name = 'bevigil'
-    description = "BeVigil OSINT API for scraping mobile application for subdomains"
-    author = ['@alt-glitch', '@m8sec']
+    name = 'chaos'
+    description = "Project Discovery's Chaos"
+    author = ['@m8sec']
     api_key = True
 
     def __init__(self, args, domain, report_q, config):
@@ -17,24 +18,24 @@ class SubModule(threading.Thread):
         self.domain = domain
         self.report_q = report_q
 
-
     def run(self):
         # API key check
-        if not self.config.bevigil['api_key']:
+        if not self.config.chaos['access_token']:
             logging.debug(f'Skipping {self.name}, API key(s) not found')
             return False
 
-        url = "https://osint.bevigil.com/api/{}/subdomains/".format(self.domain)
-        header = {"X-Access-Token": self.config.bevigil['api_key']}
+        url = f'https://dns.projectdiscovery.io/dns/{self.domain}/subdomains'
+        headers = {"Content-Type": "application/json", "Authorization": self.config.chaos['access_token']}
 
         try:
-            resp = web_request(url, timeout=self.args.timeout, headers=header)
+            resp = web_request(url, headers=headers, timeout=self.args.timeout)
             status_code = get_statuscode(resp)
 
             if status_code == 200:
                 for sub in resp.json()['subdomains']:
-                    self.report_q.add({'Name': sub, 'Source': self.name})
+                    self.report_q.add({'Name': f'{sub}.{self.domain}', 'Source': self.name})
             else:
                 raise Exception(f'Web request failed to {url} ({status_code})')
         except Exception as e:
             logging.debug(f'{self.name.upper()} ERR: {e}')
+

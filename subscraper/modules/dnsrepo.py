@@ -1,11 +1,11 @@
 import logging
 import threading
-from subscraper.utils import remove_wildcard
-from taser.http import web_request, get_statuscode
+from taser.http import web_request, get_statuscode, extract_links
+
 
 class SubModule(threading.Thread):
-    name = 'crt.sh'
-    description = "Subdomains enumeration using cert.sh."
+    name = 'dnsrepo'
+    description = "Parse dnsrepo.noc.org without an API key - 150 result limit"
     author = ['@m8sec']
     api_key = False
 
@@ -19,17 +19,19 @@ class SubModule(threading.Thread):
         self.report_q = report_q
 
     def run(self):
-        url = "https://crt.sh/?q=%25.{}&output=json".format(self.domain)
+        url = "https://dnsrepo.noc.org/?search={}".format(self.domain)
+
         try:
             resp = web_request(url, timeout=self.args.timeout)
             status_code = get_statuscode(resp)
 
             if status_code == 200:
-                for data in resp.json():
-                    for sub in data['name_value'].split('\n'):
-                        self.report_q.add({'Name': remove_wildcard(sub), 'Source': self.name})
+                for link in extract_links(resp, mailto=False, source={'a':'href'}):
+                    if "?domain=" in link and link.endswith(f'{self.domain}.'):
+                        sub = link.split('/?domain=')[1]
+                        sub = sub[:-1] if sub.endswith('.') else sub
+                        self.report_q.add({'Name': sub, 'Source': self.name})
             else:
                 raise Exception(f'Web request failed to {url} ({status_code})')
         except Exception as e:
             logging.debug(f'{self.name.upper()} ERR: {e}')
-

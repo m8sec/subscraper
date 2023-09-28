@@ -17,7 +17,10 @@ __pycache__/
 # PyCharm
 .idea
 
+# retired modules
+subscraper/modules/archive/*
+
 # reports
-subscraper_report.txt
+sub_report.txt
 *.csv
 .venv/

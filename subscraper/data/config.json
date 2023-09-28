@@ -1,0 +1,15 @@
+{
+    "bevigil": {
+        "api_key":""
+    },
+    "bufferover": {
+        "api_key":""
+    },
+    "censys": {
+        "api_id":"",
+        "api_secret":""
+    },
+    "chaos": {
+        "access_token":""
+    }
+}

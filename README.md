@@ -1,14 +1,15 @@
 # SubScraper
 
 <p align="center">
-  <a href="https://github.com/m8sec/subscraper/tree/master/subscraper/modules">
-    <img src="https://img.shields.io/badge/Call%20for%20Modules-OPEN-green?style=plastic"/>
-  </a>&nbsp;
   <a href="https://www.twitter.com/m8sec">
-        <img src="https://img.shields.io/badge/Twitter-@m8sec-gray?logo=twitter"/>
+        <img src="https://img.shields.io/badge/Twitter-@m8sec-blue?style=plastic&logo=twitter"/>
     </a>&nbsp;
-    <img src="https://img.shields.io/badge/python-3.6%20|%203.7%20|%203.8%20|%203.9%20-blue.svg"/>&nbsp;
-  
+    <a href="/LICENSE">
+        <img src="https://img.shields.io/badge/License-BSD_3--Clause-green?style=plastic&logo=github"/>
+    </a>&nbsp;
+    <a href="https://github.com/sponsors/m8sec">
+        <img src="https://img.shields.io/badge/Sponsor-GitHub-red?style=plastic&logo=github"/>
+    </a>&nbsp;
   <br>
     <a href="https://github.com/m8sec/subscraper#subscraper">Overview</a>
     &nbsp;&nbsp;:small_blue_diamond:&nbsp;&nbsp;
@@ -18,9 +19,7 @@
   <br>
 </p>
 
-:boom: **v3.0 now available!** :boom:
-
-SubScraper is a fast subdomain enumeration tool that uses a variety of techniques to find subdomains of a given target. Subdomain enumeration is especially helpful during penetration testing and bug bounty hunting to uncover an organization's attack surface.
+SubScraper is a subdomain enumeration tool that uses a variety of techniques to find subdomains of a given target. Subdomain enumeration is especially helpful during penetration testing and bug bounty hunting to uncover an organization's attack surface.
 
 Depending on the CMD arguments applied, SubScraper can resolve DNS names, request HTTP(S) information, and perform CNAME lookups for takeover opportunities during the enumeration process. This can help identify next steps and discover patterns for exploitation.  
 
@@ -28,99 +27,105 @@ Depending on the CMD arguments applied, SubScraper can resolve DNS names, reques
 
 - Modular design makes it easy to add new techniques/sources.
 - Various levels of enumeration for additional data gathering.
-- Allows for multiple target inputs or read targets from `.txt` file.
+- Allows for multiple target inputs, reading from `.txt` or STDIN.
 - Windows CLI compatibility. 
 - Generate output files in `.txt` or `.csv` format.
 
 <p align="center">
-<img width="942" alt="demo" src="https://user-images.githubusercontent.com/13889819/174695175-78ded7ff-6d27-4bda-8ebd-0c51ef1def0f.png">
+<img width="942" alt="demo" src="https://github.com/m8sec/subscraper/assets/13889819/c8503198-7759-4123-b921-28a74b773e7b">
 </p>
 
-## Install
+
+## Installation
+### Python
 The following can be used to install SubScraper on Windows, Linux, & MacOs:
 
 ```bash
 git clone https://github.com/m8sec/subscraper
 cd subscraper
-python3 setup.py install
+pip3 install -r requirements.txt
 ```
 
-## Docker
+### Docker
 You can build a docker image and run subscraper from Docker:
 ```
-git clone https://github.com/m8sec/subscraper.git
+git clone https://github.com/m8sec/subscraper
 cd subscraper
 docker build -t m8sec/subscraper .
-# display help
+
+# Display help
 docker run --rm m8sec/subscraper
-# example scanning a site
-docker run --rm m8sec/subscraper example.com
+
+# Example scanning a site
+docker run --rm m8sec/subscraper -d example.com
 ```
 
+## Configuration File
+Use the configuration file at `~/.config/subscraper/config.json` to store API keys for easy reuse. 
+
+If updating to a newer version after v4.0.0, use the `-update` argument to pull a new copy of the config file to ensure compatability. Note, this will remove any existing entries.
+
+
+### Modules
+A full list of modules can be found using the `-ls` command line argument:
+```
+Module Name            Description
+
+bevigil              - BeVigil OSINT API for scraping mobile application for subdomains (API Key Req)
+crt.sh               - Subdomains enumeration using cert.sh.
+dnsrepo              - Parse dnsrepo.noc.org without an API key - 150 result limit
+certspotter          - Use Certspotter API to collect subdomains
+chaos                - Project Discovery's Chaos (API Key Req)
+bufferover           - Query Bufferover.run API (API Key Req)
+alienvault           - Find subdomains using AlienVault OTX
+archive              - Use archive.org to find subdomains.
+dnsdumpster          - Use DNS dumpster to enumerate subdomains.
+censys.io            - Gather subdomains through censys.io SSL cert Lookups. (API Key Req)
+```
 
 ## Usage
-#### Command Line Args
+### Command Line Args
 ```
 SubScraper Options:
-  -T MAX_THREADS        Max threads for enumeration (Default: 55).
-  -t TIMEOUT            Timeout [seconds] for search threads (Default: 25).
-  -r REPORT             Output to specific file {txt*, csv}.
+  -debug                Enable debug logging
+  -update               Update config file (Will remove existing entries)
+  -config CONFIG        Override config location (Default ~/.config/subscraper/config.json)
+  -silent               Show subdomains only in output
+  -threads THREADS, -T THREADS  Max threads for enumeration (65*).
+  -t TIMEOUT            set connection timeouts (3*)
   target                Target domain.
 
 Module Options:
-  -L                    List SubScraper enumeration modules.
-  -M MODULES            Execute module(s) by name or group (Default: all).
+  -ls                   List SubScraper enumeration modules.
+  -m MODULES            Execute module(s) by name or group (all*).
+  -module-only          Execute modules only not brute force
+
+Bruteforce Options:
   -w WORDLIST           Custom wordlist for DNS brute force.
-  --censys-id CENSYS_ID             Censys.io API ID.
-  --censys-secret CENSYS_SECRET     Censys.io API Secret.
+  -ns NS                Comma separated nameservers to use
 
 Enumeration Options:
-  --dns                 Resolve DNS address for each subdomain identified.
-  --http                Probe for active HTTP:80 & HTTPS:443 services.
-  --takeover            Perform CNAME lookup & probe for HTTP(s) response.
-  --all                 Perform all checks on enumerated subdomains.
+  -r, -resolve          Resolve IP address for each subdomain identified.
+  -c, -cname            Perform CNAME lookup for subdomain takeover checks
+  -http                 Probe for active HTTP services.
+  -http-port HTTP_PORT  HTTP ports to check, comma separated (80,443*)
+
+Output Options:
+  -nc, -no-color        Disable color output
+  -active               Only report active subdomains with resolved IP
+  -csv                  Create CSV output report
+  -o REPORT             Output file
 ```
 
-#### Modules
-Modules can be executed by name or by module groups:
+### Example Inputs
 ```
-  Module Name       Description
-
-  archiveorg           - Use archive.org to find subdomains.
-  certsh               - Subdomains enumeration using cert.sh.
-  dnsbrute             - DNS bruteforce.
-  threatcrowd          - Threadcrowd.org subdomain enumeration.
-  dnsdumpster          - Use DNS dumpster to enumerate subdomains.
-  bufferoverrun        - Bufferover.run passive enumeration.
-  search               - Subdomain enumeration via search engine scraping.
-  censys               - Gather subdomains through censys.io SSL cert Lookups.
-    |_API_ID                   Censys.io API ID               (Required:True)
-    |_API_SECRET               Censys.io API Secret           (Required:True)
-  bevigil              - Gather subdomains through bevigil.com mobile app scan data
-    |_API_Key                  BeVigil API Key                (Required:True)
+python3 subscraper.py -d example.com -resolve -http -module-only
+python3 subscraper.py -d example.com -cname -m none
+cat domains.txt | python3 subscraper.py -active -silent
 ```
-**Module Groups**
-  * *all* - Execute all modules (Default).
-  * *brute* - Only execute DNS brute force techniques.
-  * *scrape* - Only execute web scraping techniques. 
-
-#### Example Usage
-```
-subscraper example.com
-subscraper targets.txt
-cat targets.txt | subscraper pipe
-subscraper -all -r enumeration.csv example.com
-subscraper -M brute -w mywords.txt example.com
-subscraper -M censys --censys-id abc123 --censys-secret xyz456 example.com
-```
-
-#### Execution Notes
-* SubScraper only uses **PASSIVE** enumeration techniques unless `all, http, takeover` arguments are applied. 
-* API keys are required for the `censys` module, register for free at [censys.io/register](https://search.censys.io/register).
-* `.txt` reports will only include subdomains. 
-* `.csv` reports, when paired with cmd args `all, http, takeover`, will provide additional HTTP data such as page size, title, and Server headers. 
 
 ## Contribute
 Contribute to the project by:
 * Like and share the tool!
-* Create an issue to report new enumeration techniques or, better yet, develop a module and initiate a PR.
+* Create an issue to report new enumeration techniques
+* OR, better yet, develop a module and initiate a PR.

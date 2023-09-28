@@ -1,53 +1,42 @@
+import logging
 import threading
-from sys import stdout
-from censys.search import CensysCertificates
-from subscraper.support.cli import highlight
+from taser import logx
+from censys.search import CensysCerts
+
 
 class SubModule(threading.Thread):
-    name = 'censys'
+    name = 'censys.io'
     description = "Gather subdomains through censys.io SSL cert Lookups."
-    author = '@m8r0wn'
-    groups = ['all', 'scrape']
-    args = {
-        'API_ID': {
-            'Description': 'Censys.io API ID',
-            'Required': True,
-            'Value': ''
-        },
-        'API_SECRET': {
-            'Description': 'Censys.io API Secret',
-            'Required': True,
-            'Value': ''
-        }
-    }
+    author = ['@m8sec']
+    api_key = True
 
-    def __init__(self, args, target, print_handler):
+    def __init__(self, args, domain, report_q, config):
         threading.Thread.__init__(self)
         self.daemon = True
-        self.handler = print_handler
-        self.target = target
-        self.timeout = args.timeout
-        self.args['API_ID']['Value'] = args.censys_id
-        self.args['API_SECRET']['Value'] = args.censys_secret
 
+        self.args = args
+        self.config = config
+        self.domain = domain
+        self.report_q = report_q
 
     def run(self):
-        if not self.args['API_ID']['Value'] or not self.args['API_SECRET']['Value']:
+        if not self.config.censys['api_id'] or not self.config.censys['api_secret']:
+            logging.debug(f'Skipping {self.name}, API key(s) not found')
             return False
 
         try:
-            certs = CensysCertificates(api_id=self.args['API_ID']['Value'], api_secret=self.args['API_SECRET']['Value'])
-            resp = certs.search("parsed.names: {}".format(self.target), fields=['parsed.names'])
-            for line in resp:
-                for sub in line['parsed.names']:
-                    if sub.endswith(self.target):
-                        self.handler.sub_handler({'Name': sub, 'Source': self.name})
+            certs = CensysCerts(api_id=self.config.censys['api_id'], api_secret=self.config.censys['api_secret'])
+            resp = certs.search(f'names: {self.domain}', per_page=100, pages=-1)
+            for page in resp:
+                for line in page:
+                    for sub in line['names']:
+                        if sub.endswith(self.domain):
+                            self.report_q.add({'Name': sub, 'Source': self.name})
 
         except Exception as e:
             if str(e).startswith('403 (unauthorized):'):
-                print(highlight('[!]', 'yellow'),
-                      highlight('Censys Authentication Failed: Verify API ID & Secret.', 'gray'))
+                logx.color(f'[{self.name}] Censys Authentication Failed: Verify API ID & Secret', fg='yellow')
             elif '400 (max_results)' in str(e):
-                pass
+                logx.color(f'[{self.name}] Max results hit (400)', fg='gray')
             else:
-                print(highlight('[!]', 'yellow'), highlight('Censys.IO Error: {}.'.format(e), 'gray'))
+                logging.debug(f'{self.name.upper()} ERR: {e}')
