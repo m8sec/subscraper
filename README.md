@@ -1,11 +1,11 @@
 # SubScraper
 
 <p align="center">
-  <a href="https://www.twitter.com/m8sec">
+    <a href="https://www.twitter.com/m8sec">
         <img src="https://img.shields.io/badge/Twitter-@m8sec-blue?style=plastic&logo=twitter"/>
     </a>&nbsp;
     <a href="/LICENSE">
-        <img src="https://img.shields.io/badge/License-BSD_3--Clause-green?style=plastic&logo=github"/>
+        <img src="https://img.shields.io/badge/License-GPL%20v3.0-green.svg"/>&nbsp;
     </a>&nbsp;
     <a href="https://github.com/sponsors/m8sec">
         <img src="https://img.shields.io/badge/Sponsor-GitHub-red?style=plastic&logo=github"/>
