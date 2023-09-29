@@ -38,12 +38,21 @@ Depending on the CMD arguments applied, SubScraper can resolve DNS names, reques
 
 ## Installation
 ### Python
-The following can be used to install SubScraper on Windows, Linux, & MacOs:
+The following can be used to install SubScraper on Windows, Linux, & MacOS:
 
 ```bash
 git clone https://github.com/m8sec/subscraper
 cd subscraper
 pip3 install -r requirements.txt
+```
+
+### Poetry
+Install and run SubScraper using [Poetry](https://python-poetry.org/docs/#installing-with-the-official-installer):
+```bash
+git clone https://github.com/m8sec/subscraper
+cd subscraper
+poetry install
+poetry run subscraper -h
 ```
 
 ### Docker

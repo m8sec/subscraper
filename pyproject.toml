@@ -1,0 +1,28 @@
+[tool.poetry]
+name = "subscraper"
+version = "4.0.0"
+license = "GPL-3.0"
+authors = ["m8sec"]
+description = "Subdomain and target enumeration tool built for offensive security testing"
+repository = "https://github.com/m8sec/subscraper"
+homepage = "https://github.com/m8sec/subscraper"
+include = ["subscraper/data/*"]
+packages = [
+    { include = "subscraper"}
+]
+
+[tool.poetry.scripts]
+subscraper = 'subscraper:main'
+
+[tool.poetry.dependencies]
+python = "^3.8"
+censys = ">=2.2.6"
+taser = ">=0.4.0"
+ipparser = ">=1.0.0"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
