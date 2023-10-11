@@ -11,5 +11,8 @@
     },
     "chaos": {
         "access_token":""
+    },
+    "redhuntlabs": {
+        "X-BLOBR-KEY":""
     }
 }
