@@ -90,6 +90,7 @@ alienvault           - Find subdomains using AlienVault OTX
 archive              - Use archive.org to find subdomains.
 dnsdumpster          - Use DNS dumpster to enumerate subdomains.
 censys.io            - Gather subdomains through censys.io SSL cert Lookups. (API Key Req)
+redhuntlabs          - Find subdomains using the RedHunt Labs recon API (API Key Req)
 ```
 
 ## Usage
