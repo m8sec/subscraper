@@ -2,7 +2,6 @@ import logging
 import threading
 from taser.http import web_request, get_statuscode
 
-
 class SubModule(threading.Thread):
     name = 'redhuntlabs'
     description = "RedHunt Labs' recon API"
@@ -24,24 +23,25 @@ class SubModule(threading.Thread):
             logging.debug(f'Skipping {self.name}, API key(s) not found')
             return False
 
-        url = f'https://reconapi.redhuntlabs.com/community/v1/domains/subdomains?domain={self.domain}&page_size=10&page=1'
-        headers = {"X-BLOBR-KEY": self.config.redhuntlabs['X-BLOBR-KEY']}
-
         page = 1
+        url = f'https://reconapi.redhuntlabs.com/community/v1/domains/subdomains?domain={self.domain}&page_size=10&page={}'
+        headers = {"X-BLOBR-KEY": self.config.redhuntlabs['X-BLOBR-KEY']}
 
         while 1:
             try:
-                resp = web_request(f'{url}{str(page)}', headers=headers, timeout=self.args.timeout)
+                resp = web_request(url.format(self.domain, page), headers=headers, timeout=self.args.timeout)
                 status_code = get_statuscode(resp)
 
                 if status_code == 200:
-                    for sub in resp.json()['subdomains']:
-                        self.report_q.add({'Name': f'{sub}.{self.domain}', 'Source': self.name})
-                else:
-                    raise Exception(f'Web request failed to {url} ({status_code})')
+                    if resp.json()['subdomains']:
+                        for sub in resp.json()['subdomains']: self.report_q.add({'Name': f'{sub}.{self.domain}', 'Source': self.name})
+                        page+=1
+                    else:
+                        logging.debug(f'{self.name}: No results found (Pg. {page}) closing thread')
+                        page = False
+                elif status_code == 403: raise Exception(f'API Limit reached ({status_code})')
+                else: raise Exception(f'Web request failed to {url} ({status_code})')
                 
             except Exception as e:
                 logging.debug(f'{self.name.upper()} ERR: {e}')
-                break
-
-            page+=1
+                page = False
