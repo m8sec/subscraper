@@ -18,7 +18,7 @@ subscraper = 'subscraper:main'
 python = "^3.8"
 censys = ">=2.2.6"
 taser = ">=0.4.0"
-ipparser = ">=1.0.0"
+ipparser = ">=1.0.1"
 
 [tool.poetry.dev-dependencies]
 

@@ -179,7 +179,7 @@ python-versions = ">=3.5"
 
 [[package]]
 name = "ipparser"
-version = "1.0.0"
+version = "1.0.1"
 description = "Lightweight package to parse host inputs for iteration."
 category = "main"
 optional = false
