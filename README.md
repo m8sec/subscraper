@@ -83,10 +83,11 @@ Module Name            Description
 bevigil              - BeVigil OSINT API for scraping mobile application for subdomains (API Key Req)
 crt.sh               - Subdomains enumeration using cert.sh.
 dnsrepo              - Parse dnsrepo.noc.org without an API key - 150 result limit
-certspotter          - Use Certspotter API to collect subdomains
 chaos                - Project Discovery's Chaos (API Key Req)
+certspotter          - Use Certspotter API to collect subdomains
 bufferover           - Query Bufferover.run API (API Key Req)
 alienvault           - Find subdomains using AlienVault OTX
+redhuntlabs          - RedHunt Labs recon API (API Key Req)
 archive              - Use archive.org to find subdomains.
 dnsdumpster          - Use DNS dumpster to enumerate subdomains.
 censys.io            - Gather subdomains through censys.io SSL cert Lookups. (API Key Req)
