@@ -21,7 +21,7 @@ setup(
     install_requires=[
         'censys>=2.2.6',
         'taser>=0.4.0',
-        'ipparser>=1.0.0',
+        'ipparser>=1.0.1',
     ],
     classifiers= [
         "Environment :: Console",
