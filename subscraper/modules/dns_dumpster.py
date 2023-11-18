@@ -2,6 +2,7 @@ import logging
 import threading
 from taser.http import web_request, get_statuscode
 
+
 class SubModule(threading.Thread):
     name = 'dnsdumpster'
     description = "Use DNS dumpster to enumerate subdomains."
@@ -18,15 +19,14 @@ class SubModule(threading.Thread):
         self.report_q = report_q
 
     def run(self):
-        url = "https://api.hackertarget.com/hostsearch/?q={}".format(self.domain)
+        url = f"https://api.hackertarget.com/hostsearch/?q={self.domain}"
         try:
             resp = web_request(url, timeout=self.args.timeout)
             status_code = get_statuscode(resp)
             if status_code == 200:
                 for line in resp.text.splitlines():
                     if line.count('.') > 1:
-                        sub = self.sub_extractor(line)
-                        if sub:
+                        if sub := self.sub_extractor(line):
                             self.report_q.add({'Name': sub, 'Source': self.name})
 
             elif status_code == 429:
@@ -39,5 +39,5 @@ class SubModule(threading.Thread):
     def sub_extractor(self, line):
         try:
             return line.split(",")[0]
-        except:
+        except Exception:
             return False

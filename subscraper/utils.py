@@ -1,8 +1,9 @@
 import os
-from sys import exit
 from json import load
-from taser import logx
 from shutil import copyfile
+from sys import exit
+
+from taser import logx
 
 
 class ConfigParser:
@@ -14,17 +15,19 @@ class ConfigParser:
 
     def __init__(self, args):
         self.args = args
-        self.first_run_check() if not self.args.config else False
-        self.config = self.args.config if self.args.config else self.default_path
+        False if self.args.config else self.first_run_check()
+        self.config = self.args.config or self.default_path
         self.parse()
 
     def first_run_check(self):
         os.makedirs(os.path.dirname(self.default_path), exist_ok=True)
 
         if not os.path.exists(self.default_path) or self.args.update:
-            logx.color("[*] Creating new SubScraper config file...", fg='gray', windows=self.args.no_color) if not self.args.silent else False
+            False if self.args.silent else logx.color("[*] Creating new SubScraper config file...", fg='gray',
+                                                      windows=self.args.no_color)
             copyfile(self.default_config, self.default_path)
-            logx.color(f'[*] New config added to {self.default_path}', fg='gray', windows=self.args.no_color) if not self.args.silent else False
+            False if self.args.silent else logx.color(f'[*] New config added to {self.default_path}', fg='gray',
+                                                      windows=self.args.no_color)
 
     def parse(self):
         try:
@@ -32,8 +35,13 @@ class ConfigParser:
                 for k, v in load(f).items():
                     setattr(self, k, v)
         except Exception as e:
-            logx.color('[!] Error parsing config file: {}'.format(e), fg='yellow', windows=self.args.no_color)
+            logx.color(
+                f'[!] Error parsing config file: {e}',
+                fg='yellow',
+                windows=self.args.no_color,
+            )
             exit(1)
+
 
 ###########################################
 # Misc utils for parsing subdomain strings

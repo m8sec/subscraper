@@ -1,7 +1,8 @@
 import logging
 import threading
-from taser import logx
+
 from censys.search import CensysCerts
+from taser import logx
 
 
 class SubModule(threading.Thread):

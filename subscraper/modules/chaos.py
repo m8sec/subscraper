@@ -1,5 +1,6 @@
 import logging
 import threading
+
 from taser.http import web_request, get_statuscode
 
 
@@ -31,11 +32,9 @@ class SubModule(threading.Thread):
             resp = web_request(url, headers=headers, timeout=self.args.timeout)
             status_code = get_statuscode(resp)
 
-            if status_code == 200:
-                for sub in resp.json()['subdomains']:
-                    self.report_q.add({'Name': f'{sub}.{self.domain}', 'Source': self.name})
-            else:
+            if status_code != 200:
                 raise Exception(f'Web request failed to {url} ({status_code})')
+            for sub in resp.json()['subdomains']:
+                self.report_q.add({'Name': f'{sub}.{self.domain}', 'Source': self.name})
         except Exception as e:
             logging.debug(f'{self.name.upper()} ERR: {e}')
-
