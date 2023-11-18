@@ -1,7 +1,9 @@
 import logging
 import threading
-from subscraper.utils import remove_wildcard
+
 from taser.http import web_request, get_statuscode
+
+from subscraper.utils import remove_wildcard
 
 
 class SubModule(threading.Thread):
@@ -20,7 +22,7 @@ class SubModule(threading.Thread):
         self.report_q = report_q
 
     def run(self):
-        url = "https://api.certspotter.com/v1/issuances?domain={}&include_subdomains=true&expand=dns_names".format(self.domain)
+        url = f"https://api.certspotter.com/v1/issuances?domain={self.domain}&include_subdomains=true&expand=dns_names"
         try:
             resp = web_request(url, timeout=self.args.timeout)
             status_code = get_statuscode(resp)

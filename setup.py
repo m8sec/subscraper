@@ -16,14 +16,14 @@ setup(
         "subscraper", "subscraper.*"
     ]),
     package_data={
-      'subscraper': ['data/*']
+        'subscraper': ['data/*']
     },
     install_requires=[
         'censys>=2.2.6',
         'taser>=0.4.0',
         'ipparser>=1.0.1',
     ],
-    classifiers= [
+    classifiers=[
         "Environment :: Console",
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",

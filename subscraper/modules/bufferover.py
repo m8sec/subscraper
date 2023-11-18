@@ -1,7 +1,10 @@
 import logging
 import threading
-from subscraper.utils import remove_wildcard
+
 from taser.http import web_request, get_statuscode
+
+from subscraper.utils import remove_wildcard
+
 
 class SubModule(threading.Thread):
     name = 'bufferover'
@@ -24,19 +27,18 @@ class SubModule(threading.Thread):
             logging.debug(f'Skipping {self.name}, API key(s) not found')
             return False
 
-        url = "https://tls.bufferover.run/dns?q=.{}".format(self.domain)
+        url = f"https://tls.bufferover.run/dns?q=.{self.domain}"
         headers = {'x-api-key': self.config.bufferover['api_key']}
 
         try:
             resp = web_request(url, timeout=self.args.timeout, headers=headers)
             status_code = get_statuscode(resp)
 
-            if status_code == 200:
-                for line in resp.json()['Results']:
-                    for sub in line.split(','):
-                        if self.domain in sub:
-                            self.report_q.add({'Name': remove_wildcard(sub), 'Source': self.name})
-            else:
+            if status_code != 200:
                 raise Exception(f'Web request failed to {url} ({status_code})')
+            for line in resp.json()['Results']:
+                for sub in line.split(','):
+                    if self.domain in sub:
+                        self.report_q.add({'Name': remove_wildcard(sub), 'Source': self.name})
         except Exception as e:
             logging.debug(f'{self.name.upper()} ERR: {e}')

@@ -19,16 +19,15 @@ class SubModule(threading.Thread):
         self.report_q = report_q
 
     def run(self):
-        url = "https://otx.alienvault.com/api/v1/indicators/domain/{}/passive_dns".format(self.domain)
+        url = f"https://otx.alienvault.com/api/v1/indicators/domain/{self.domain}/passive_dns"
 
         try:
             resp = web_request(url, timeout=self.args.timeout)
             status_code = get_statuscode(resp)
 
-            if status_code == 200:
-                for data in resp.json()['passive_dns']:
-                    self.report_q.add({'Name': data['hostname'], 'Source': self.name})
-            else:
+            if status_code != 200:
                 raise Exception(f'Web request failed to {url} ({status_code})')
+            for data in resp.json()['passive_dns']:
+                self.report_q.add({'Name': data['hostname'], 'Source': self.name})
         except Exception as e:
             logging.debug(f'{self.name.upper()} ERR: {e}')

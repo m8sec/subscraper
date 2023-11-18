@@ -1,5 +1,6 @@
 import logging
 import threading
+
 from taser import logx
 from taser.http import web_request, get_statuscode
 
@@ -43,7 +44,8 @@ class SubModule(threading.Thread):
                         logging.debug(f'{self.name}: No results found (Pg. {page}) closing thread')
                         page = False
                 elif status_code == 403:
-                    logx.color(f'[{self.name}] API Limit reached ({status_code})', fg='yellow', windows=self.args.no_color)
+                    logx.color(f'[{self.name}] API Limit reached ({status_code})', fg='yellow',
+                               windows=self.args.no_color)
                     page = False
                 else:
                     raise Exception(f'Web request failed to {url} ({status_code})')
