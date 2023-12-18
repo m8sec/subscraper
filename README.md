@@ -69,19 +69,19 @@ docker run --rm m8sec/subscraper
 docker run --rm m8sec/subscraper -d example.com
 ```
 
-## Configuration File
+## Updates:
 Use the configuration file at `~/.config/subscraper/config.json` to store API keys for easy reuse. 
 
-If updating to a newer version after v4.0.0, use the `-update` argument to pull a new copy of the config file to ensure compatability. Note, this will remove any existing entries.
+If updating to a newer version after v4.0.0, use the `-update` argument to pull a new copy of the config file and ensure 
+compatibility - *Note: This will remove any existing key entries.*
 
 
 ### Modules
 A full list of modules can be found using the `-ls` command line argument:
 ```
-Module Name            Description
-
 bevigil              - BeVigil OSINT API for scraping mobile application for subdomains (API Key Req)
 crt.sh               - Subdomains enumeration using cert.sh.
+virustotal           - Lookup subdomain on VirusTotal (API Key Req)
 dnsrepo              - Parse dnsrepo.noc.org without an API key - 150 result limit
 chaos                - Project Discovery's Chaos (API Key Req)
 certspotter          - Use Certspotter API to collect subdomains
@@ -91,6 +91,7 @@ redhuntlabs          - RedHunt Labs recon API (API Key Req)
 archive              - Use archive.org to find subdomains.
 dnsdumpster          - Use DNS dumpster to enumerate subdomains.
 censys.io            - Gather subdomains through censys.io SSL cert Lookups. (API Key Req)
+shodan               - Get subdomains with Shodan (API Key Req)
 ```
 
 ## Usage

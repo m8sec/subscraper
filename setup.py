@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name='SubScraper',
-    version='4.0.0',
+    version='4.0.1',
     author='m8sec',
     description='Subdomain and target enumeration tool built for offensive security testing',
     long_description=long_description,

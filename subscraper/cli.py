@@ -6,7 +6,7 @@ from taser import logx
 from taser.utils import delimiter2list, file_exists
 
 def banner(args):
-    version = '4.0.0'
+    version = '4.0.1'
     banner = """                 
      ___      _    ___                            
     / __|_  _| |__/ __| __ _ _ __ _ _ __  ___ _ _ 
@@ -38,8 +38,8 @@ def cmd_parser():
     brute.add_argument('-ns',default=[], type=lambda x: delimiter2list(x), help="Comma separated nameservers to use")
 
     enum = args.add_argument_group("Enumeration Options")
-    enum.add_argument('-r', '-resolve',dest='resolve', action='store_true', help='Resolve IP address for each subdomain identified.')
-    enum.add_argument('-c', '-cname', dest='cname', action='store_true', help='Perform CNAME lookup for subdomain takeover checks')
+    enum.add_argument('-r', '-resolve', dest='resolve', action='store_true', help='Resolve DNS names.')
+    enum.add_argument('-c', '-cname', dest='cname', action='store_true', help='CNAME lookup for subdomain takeover')
     enum.add_argument('-http', action='store_true', help='Probe for active HTTP services.')
     enum.add_argument('-http-port', default='80,443', type=lambda x: delimiter2list(x), help='HTTP ports to check, comma separated (80,443*)')
 

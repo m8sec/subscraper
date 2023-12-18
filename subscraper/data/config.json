@@ -14,5 +14,11 @@
     },
     "redhuntlabs": {
         "X-BLOBR-KEY": ""
+    },
+    "shodan": {
+        "api_key": ""
+    },
+    "virustotal": {
+        "api_key": ""
     }
 }
