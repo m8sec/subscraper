@@ -3,18 +3,18 @@
 <p align="center">
     <a href="https://www.twitter.com/m8sec">
         <img src="https://img.shields.io/badge/Twitter-@m8sec-blue?style=plastic&logo=twitter"/>
-    </a>&nbsp;
+    </a> &nbsp;
     <a href="/LICENSE">
         <img src="https://img.shields.io/badge/License-GPL%20v3.0-green.svg"/>&nbsp;
-    </a>&nbsp;
+    </a> &nbsp;
     <a href="https://github.com/sponsors/m8sec">
         <img src="https://img.shields.io/badge/Sponsor-GitHub-red?style=plastic&logo=github"/>
-    </a>&nbsp;
+    </a> &nbsp;
   <br>
     <a href="https://github.com/m8sec/subscraper#subscraper">Overview</a>
-    &nbsp;&nbsp;:small_blue_diamond:&nbsp;&nbsp;
+    &nbsp;&nbsp; :small_blue_diamond: &nbsp;&nbsp;
     <a href="https://github.com/m8sec/subscraper#usage">Usage</a>
-    &nbsp;&nbsp;:small_blue_diamond:&nbsp;&nbsp;
+    &nbsp;&nbsp; :small_blue_diamond: &nbsp;&nbsp;
     <a href="https://github.com/m8sec/subscraper#contribute">Contribute</a>
   <br>
 </p>
