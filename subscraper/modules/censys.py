@@ -31,10 +31,7 @@ class SubModule(threading.Thread):
                 for line in page:
                     for sub in line['names']:
                         if sub.endswith(self.domain):
-                            if sub.startswith('*.'):
-                                sub = sub[2:]
-                            self.report_q.add({'Name': sub, 'Source': self.name})
-
+                            self.report_q.add({'Name': sub[2:] if sub.startswith('*.') else sub, 'Source': self.name})
         except Exception as e:
             if str(e).startswith('403 (unauthorized):'):
                 logx.color(f'[{self.name}] Censys Authentication Failed: Verify API ID & Secret', fg='yellow')
