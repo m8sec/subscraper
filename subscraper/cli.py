@@ -6,7 +6,7 @@ from taser import logx
 from taser.utils import delimiter2list, file_exists
 
 def banner(args):
-    version = '4.0.1'
+    version = '4.0.2'
     banner = """                 
      ___      _    ___                            
     / __|_  _| |__/ __| __ _ _ __ _ _ __  ___ _ _ 

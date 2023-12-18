@@ -31,6 +31,8 @@ class SubModule(threading.Thread):
                 for line in page:
                     for sub in line['names']:
                         if sub.endswith(self.domain):
+                            if sub.startswith('*.'):
+                                sub = sub[2:]
                             self.report_q.add({'Name': sub, 'Source': self.name})
 
         except Exception as e:
